@@ -11,3 +11,13 @@ MongoClient.connect('mongodb://127.0.0.1:27017/zombiesvshumans', (err, database)
     console.log("Listening on 3000");
   });
 })
+
+app.get('/users', (req, res) =>{
+  // console.log(req.query.tagId);
+  // console.log(req.query.test1);
+  var cursor = db.collection('users').find().toArray(function(err, results){
+    console.log(results);
+    res.send(results);
+  });
+  //console.log(cursor);
+})
