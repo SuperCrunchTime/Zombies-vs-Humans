@@ -20,6 +20,10 @@ import android.support.annotation.NonNull;
         import android.util.ArrayMap;
 import android.widget.Toast;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 import com.google.android.gms.common.ConnectionResult;
         import com.google.android.gms.common.api.GoogleApiClient;
         import com.google.android.gms.common.api.PendingResult;
@@ -39,10 +43,16 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.google.android.gms.maps.OnMapReadyCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
 public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks{
 
 
-        ArrayMap<LatLng, Marker> Markers=new ArrayMap<>();
+        ArrayMap<String , Marker> Markers=new ArrayMap<>();
         SupportMapFragment gogmymap;
         GoogleMap mymap=null;
         LocationListener mylocation;
@@ -55,59 +65,32 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         Activity myactivity;
         Boolean TrackLocationWithCamera,PinDrop=false;
         Boolean Firstchange=false;
+        ArrayMap <String,PlayerItem> gameusers = new ArrayMap<>();
+        Activity gamecontext = this;
+        PullGamedatathread datagame;
+        String LINK = getResources().getString(R.string.URL);
 
 public static final int GPS_FINE_LOCATION_SERVICE=1;
 public static final int REQUEST_CHECK_SETTINGS=1;
 
-    Handler peopleupdate = new Handler(){
-        @Override
+    Handler peopleupdate = new Handler(){//handle the players being updated here!
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            /*public void onCheckedChanged(CompoundButton buttonView,boolean isChecked){
-        if(currlocation==null){
-        Toast.makeText(myactivity,"Please wait a few minuetes for location to update",Toast.LENGTH_SHORT).show();
-        }else{
-        LatLng tp=new LatLng(currlocation.getLatitude(),currlocation.getLongitude());
-        if(isChecked){
-        PinDrop=true;
-        if(Markers.size()==0){
-        Marker tmpmark=mymap.addMarker(new MarkerOptions().position(tp).title(String.valueOf(currlocation.getLatitude())).snippet("It's a marker"));
-        Markers.put(tp,tmpmark);
-        }
-        }else{
-        PinDrop=false;
-        }
-        }
-        }
-        });
-
-        //   tog1.set look at the toggle button api and check for things!
 
 
-        }
+        datagame = new PullGamedatathread(gameusers,peopleupdate);
+            datagame.start();
+    }};
 
-        @Override
-public void onClick(View v){
-        if(currlocation==null){
-        Toast.makeText(myactivity,"Please wait a few minuetes for location to update",Toast.LENGTH_SHORT).show();
-        }else{
-        LatLng tp=new LatLng(currlocation.getLatitude(),currlocation.getLongitude());
-        if(Markers.containsKey(tp)){
 
-        }else{
-        Marker tmpmark=mymap.addMarker(new MarkerOptions().position(tp).title(String.valueOf(currlocation.getLatitude())).snippet("It's a marker"));
-        Markers.put(tp,tmpmark);
-        Markers.size();
-        }
-        }
-        }
-        });
-    */
-        }
-    };
 @Override
-protected void onCreate(Bundle savedInstanceState){
+protected void onCreate(Bundle savedInstanceState){// should only get called once because the requested orientation is portrait
+    gameusers.put(getIntent().getStringExtra("Username"),new PlayerItem()); //sets the username to their playeritem
+    datagame = new PullGamedatathread(gameusers,peopleupdate);
+
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         myactivity=this;
+        AndroidNetworking.initialize(getApplicationContext());// For android networking!
 
         mGoogleApiClient=new GoogleApiClient.Builder(this)//setting up a google api client to change the gps settings
         .addApi(LocationServices.API)
@@ -131,11 +114,37 @@ public void onLocationChanged(Location location){//on location changed takes in 
         mymap.moveCamera(camup2);
         CameraUpdate camup=CameraUpdateFactory.zoomTo(19.0f);
         mymap.animateCamera(camup);
-                  /*  LatLng tmplatlng = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());
-                    CameraUpdate camup = CameraUpdateFactory.newLatLng(tmplatlng);
-                    mymap.animateCamera(camup);*/
+
+        AndroidNetworking.initialize(gamecontext);
+
+    ////////////////////////////////////////////////////////////////////////
+    JSONObject userupdate= new JSONObject();
+    try {
+        userupdate.put("Username",gameusers.get(0).getPlayername())
+                .put("Latitude",currlocation.getLatitude())
+                .put("Longitude",currlocation.getLongitude());
+
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+    AndroidNetworking.post(LINK)//send data of user location to server
+            .addJSONObjectBody(userupdate)
+            .build()
+            .getAsJSONObject(new JSONObjectRequestListener() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                }
+
+                @Override
+                public void onError(ANError anError) {
+
+                }
+            });
 
 
+
+    ///////////////////////////////////////////////////////////////////////////////////
         }
 
 @Override
@@ -154,7 +163,7 @@ public void onProviderDisabled(String provider){
         }
         };
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
+
 
         //managelocation.requestLocationUpdates("GPS_PROVIDER", 500, .5f, mylocation);
 
@@ -171,7 +180,7 @@ public void onProviderDisabled(String provider){
         // currlocation = locationmanage.getLastKnownLocation(locationmanage.GPS_PROVIDER);
 
 
-
+    datagame.start();//initial start of the datagame thread
         }
 
 @Override
@@ -188,7 +197,8 @@ protected void onStop(){
 
 @Override
 protected void onDestroy(){
-        super.onDestroy();
+    datagame.norun();// stop the pulling data thread form running
+    super.onDestroy();
         }
 
 @Override

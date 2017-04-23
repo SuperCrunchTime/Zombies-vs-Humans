@@ -3,4 +3,7 @@
     <string name="google_maps_key">AIzaSyBRgxAHh7dzLXaOV3DSj8LFHyi22v64yQM</string>
     <string name="Play">Play</string>
     <string name="ZombiesvsHumans">Zombies vs. Humans</string>
+    <string name="Human">You are Human</string>
+    <string name="Zombie">You are Infected</string>
+    <string name = "URL">placeholderurl.com/blabla.php</string>
 </resources>

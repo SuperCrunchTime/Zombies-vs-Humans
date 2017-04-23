@@ -12,11 +12,20 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:id="@+id/zombhummap"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
+        android:layout_below="@id/Status"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+      />
+
+    <TextView
+        android:id="@+id/Status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text=""
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="25dp" />
 
 
-
-    </RelativeLayout>
+</RelativeLayout>
