@@ -42,12 +42,14 @@ import com.google.android.gms.maps.model.Marker;
 
 
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
@@ -75,7 +77,22 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     Handler peopleupdate = new Handler() {//handle the players being updated here!
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            MarkerOptions markerOptions;
 
+            for (Map.Entry<String, PlayerItem> entry: gameusers.entrySet()) {
+                // If it's not the first entry (you, the local player)
+                if (!entry.getKey().equals(gameusers.keyAt(0))) {
+                    // If the player doesn't already have a marker
+                    if (!Markers.containsKey(entry.getKey())) {
+                        markerOptions = new MarkerOptions()
+                                .position(new LatLng(entry.getValue().getLattitude(), entry.getValue().getLongitude()));
+                        Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
+                    // If the player already has a marker
+                    } else {
+                        Markers.get(entry.getKey()).setPosition(new LatLng(entry.getValue().getLattitude(), entry.getValue().getLongitude()));
+                    }
+                }
+            }
 
             datagame = new PullGamedatathread(gameusers, peopleupdate);
             datagame.start();
