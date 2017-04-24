@@ -18,7 +18,7 @@
         android:text=""
         android:textAlignment="center"
         android:textColor="@android:color/black"
-        android:textSize="25dp" />
+        android:textSize="25sp" />
     <fragment
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
