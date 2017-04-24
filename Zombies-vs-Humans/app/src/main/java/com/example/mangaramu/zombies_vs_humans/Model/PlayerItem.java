@@ -40,10 +40,10 @@ public class PlayerItem {
         Playername = playername;
     }
 
-    public Double getLattitude(Double position) {
+    public Double getLattitude() {
         return this.latt;
     }
-    public Double getLongitude(Double position) {
+    public Double getLongitude() {
         return this.longi;
     }
 
