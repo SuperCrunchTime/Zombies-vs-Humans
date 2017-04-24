@@ -37,6 +37,8 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -78,19 +80,17 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             MarkerOptions markerOptions;
+            BitmapDescriptor bd;
 
-            for (Map.Entry<String, PlayerItem> entry: gameusers.entrySet()) {
+            for (Map.Entry<String, PlayerItem> entry : gameusers.entrySet()) {
                 // If it's not the first entry (you, the local player)
                 if (!entry.getKey().equals(gameusers.keyAt(0))) {
-                    // If the player doesn't already have a marker
-                    if (!Markers.containsKey(entry.getKey())) {
-                        markerOptions = new MarkerOptions()
-                                .position(new LatLng(entry.getValue().getLattitude(), entry.getValue().getLongitude()));
-                        Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
-                    // If the player already has a marker
-                    } else {
-                        Markers.get(entry.getKey()).setPosition(new LatLng(entry.getValue().getLattitude(), entry.getValue().getLongitude()));
-                    }
+                    bd = getColorBasedOnDistance(gameusers.valueAt(0), entry.getValue());
+                    markerOptions = new MarkerOptions()
+                            .position(new LatLng(entry.getValue().getLattitude(), entry.getValue().getLongitude()))
+                            .title(entry.getKey())
+                            .icon(bd);
+                    Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
                 }
             }
 
@@ -98,6 +98,39 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             datagame.start();
         }
     };
+
+    BitmapDescriptor getColorBasedOnDistance(PlayerItem local, PlayerItem other) {
+        BitmapDescriptor bd;
+        float[] results = new float[1];
+
+        Location.distanceBetween(local.getLattitude(), local.getLongitude(),
+                other.getLattitude(), other.getLongitude(), results);
+
+        // Cool hues for Humans
+        if (other.getHuorZomb().toLowerCase().equals("human")) {
+            if (results[0] <= 10) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+            } else if ((results[0] > 10) && (results[0] <= 20)) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+            } else {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+            }
+        // Warm hues for Zombies
+        } else if (other.getHuorZomb().toLowerCase().equals("zombie")) {
+            if (results[0] <= 10) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+            } else if ((results[0] > 10) && (results[0] <= 20)) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+            } else {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+            }
+        // Green for error anomalies (errors)
+        } else {
+            bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+        }
+
+        return bd;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
