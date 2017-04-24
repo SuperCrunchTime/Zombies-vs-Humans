@@ -78,7 +78,6 @@ public static final int REQUEST_CHECK_SETTINGS=1;
             super.handleMessage(msg);
 
 
-
         datagame = new PullGamedatathread(gameusers,peopleupdate);
             datagame.start();
     }};
@@ -86,7 +85,7 @@ public static final int REQUEST_CHECK_SETTINGS=1;
 
 @Override
 protected void onCreate(Bundle savedInstanceState){// should only get called once because the requested orientation is portrait
-    gameusers.put(getIntent().getStringExtra("Username"),new PlayerItem()); //sets the username to their playeritem
+    gameusers.put(getIntent().getStringExtra("Username"),new PlayerItem()); //sets the username to their playeritem, the first item in gameusers should be the player themselves
     datagame = new PullGamedatathread(gameusers,peopleupdate);
 
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
