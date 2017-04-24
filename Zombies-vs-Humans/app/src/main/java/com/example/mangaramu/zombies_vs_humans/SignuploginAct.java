@@ -16,6 +16,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.androidnetworking.interfaces.StringRequestListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ public class SignuploginAct extends Activity {
 
     EditText playernmae;
     Button play;
-    SharedPreferences sharedpref= getPreferences(Context.MODE_PRIVATE);
+    SharedPreferences sharedpref= getPreferences(MODE_PRIVATE);
     SharedPreferences.Editor editor = sharedpref.edit();
     String LINK = getResources().getString(R.string.URL);
 
@@ -51,43 +52,39 @@ if(sharedpref.getString("Name","").equals("")) {
             name = playernmae.getText().toString();
             //send the name to the gameactivity if the name exists.
             //if the name doesent exist, create an entry jSON and do a post request to some server api that will handle things.
-            AndroidNetworking.get(LINK).addQueryParameter("Name",name) //TODO - This is what i would want
+            AndroidNetworking.get(LINK+"/{path}")
+                    .addPathParameter("path",getResources().getString(R.string.checkpath))
+                    .addQueryParameter("username",name) //TODO - This is what i would want
                     .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
+                    .getAsJSONArray(new JSONArrayRequestListener() {
                         @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                if(response.getString("Exists").equals("T"))// if the name already exists on the server.
-                                {
-                                    editor.putString("Name",name);
-                                    editor.commit();
-                                    StartGame(name);
-                                }
-                                else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
-                                {
-                                    JSONObject newplayer= new JSONObject();
-                                    newplayer.put("Name",name);
+                        public void onResponse(JSONArray response) {
+                            if(response.length()>0)// if the name already exists on the server.
+                            {
+                                editor.putString("Name",name);
+                                editor.commit();
+                                StartGame(name);
+                            }
+                            else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
+                            {
 
-                                    AndroidNetworking.post(LINK)
-                                            .addJSONObjectBody(newplayer)
-                                            .build()
-                                            .getAsJSONObject(new JSONObjectRequestListener() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            editor.putString("Name",name);// saves the name to our editor object on empty JSON response
-                                            editor.commit();
-                                            StartGame(name);
-                                        }
+                                AndroidNetworking.post(LINK)
+                                .addUrlEncodeFormBodyParameter("username",name)
+                                        .build()
+                                        .getAsString(new StringRequestListener() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        editor.putString("Name",name);// saves the name to our editor object on empty JSON response
+                                        editor.commit();
+                                        StartGame(name);
+                                    }
 
-                                        @Override
-                                        public void onError(ANError anError) {
+                                    @Override
+                                    public void onError(ANError anError) {
 
-                                        }
-                                    });
-                                    //post request that makes the user
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                    }
+                                });
+                                //post request that makes the user
                             }
                         }
 
