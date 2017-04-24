@@ -78,6 +78,7 @@ public static final int REQUEST_CHECK_SETTINGS=1;
             super.handleMessage(msg);
 
 
+
         datagame = new PullGamedatathread(gameusers,peopleupdate);
             datagame.start();
     }};
