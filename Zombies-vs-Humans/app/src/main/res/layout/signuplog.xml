@@ -14,6 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="168dp"
+        android:hint="@string/login_username_hint"
         android:ems="10"
         android:inputType="textPersonName"
         />
@@ -25,7 +26,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="44dp"
-        android:textSize="40dp"
+        android:textSize="35sp"
         android:text="@string/ZombiesvsHumans"
         />
 
