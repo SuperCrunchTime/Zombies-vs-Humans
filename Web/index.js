@@ -17,9 +17,18 @@ MongoClient.connect('mongodb://127.0.0.1:27017/zombiesvshumans', (err, database)
 
 app.get('/getusers', (req, res) =>{
   //Dumps the entire user table
-  var cursor = db.collection('users').find().toArray(function(err, results){
-    res.send(results);
-  });
+  var user = req.query.username;
+  console.log(user);
+  if(user!=null){
+    var cursor = db.collection('users').find({username:user}).toArray(function(err, results){
+      res.send(results);
+    });
+  } else {
+    var cursor = db.collection('users').find().toArray(function(err, results){
+      res.send(results);
+    });
+  }
+
 });
 
 app.post('/updateuser', (req, res) =>{
