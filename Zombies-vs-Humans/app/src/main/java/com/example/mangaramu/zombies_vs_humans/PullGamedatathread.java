@@ -9,6 +9,7 @@ import android.util.ArrayMap;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 
@@ -35,15 +36,14 @@ public class PullGamedatathread extends Thread {
     @Override
     public void run() {
 
-            AndroidNetworking.get(LINK)
-                    .addQueryParameter("Users", "Active")
-                    .addQueryParameter("Username",gameusers.valueAt(0).getPlayername()) //pull data of locations from server
+            AndroidNetworking.get(LINK+"/getusers")
+                     //pull data of locations from server
                     .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
+                    .getAsJSONArray(new JSONArrayRequestListener() {
                         @Override
-                        public void onResponse(JSONObject response) {
+                        public void onResponse(JSONArray response) {
                             try {
-                                JSONArray users = response.getJSONArray("Users");
+                                JSONArray users = response;
                                 for (int x = 0; x < users.length(); x++) {
                                     String tmpuse = ((JSONObject) users.get(x)).getString("Username");
                                     Double tmplat = ((JSONObject) users.get(x)).getDouble("Latitude");
