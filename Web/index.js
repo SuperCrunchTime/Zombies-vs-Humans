@@ -32,7 +32,7 @@ app.post('/updateuser', (req, res) =>{
       });
     } else {
       //If the user does exist, update the entry. Prob better way to do this
-      db.collection('users').update({username: req.body.username}, {username:req.body.username, long:req.body.long, lat:req.body.lat});
+      db.collection('users').update({username: req.body.username}, {username:req.body.username, long:req.body.long, lat:req.body.lat, iszombie:req.body.iszombie});
     }
   });
   res.end('yes');
