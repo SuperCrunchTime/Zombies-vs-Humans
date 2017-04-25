@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/loginBackground"
+
 
     tools:context="com.example.mangaramu.zombies_vs_humans.GameActivity">
+
+    <!--android:background="@drawable/loginbackground"-->
 
     <TextView
         android:id="@+id/something"

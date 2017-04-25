@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
 import com.androidnetworking.AndroidNetworking;

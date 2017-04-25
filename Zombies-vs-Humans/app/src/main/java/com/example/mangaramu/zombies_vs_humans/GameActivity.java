@@ -135,7 +135,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
         LINK = getResources().getString(R.string.URL);
-        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem()); //sets the username to their playeritem, the first item in gameusers should be the player themselves
+        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"),null,null,null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
         datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
