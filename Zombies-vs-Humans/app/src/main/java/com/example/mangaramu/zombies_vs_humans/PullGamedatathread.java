@@ -25,12 +25,13 @@ public class PullGamedatathread extends Thread {
 
     ArrayMap<String, PlayerItem> gameusers;
     Boolean running = true;
-    String LINK = Resources.getSystem().getString(R.string.URL);
+    String LINK;
     Handler handle;
 
-    PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y) {
+    PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y, String link) {
         gameusers = x;
         handle = y;
+        LINK = link;
     }
 
     @Override

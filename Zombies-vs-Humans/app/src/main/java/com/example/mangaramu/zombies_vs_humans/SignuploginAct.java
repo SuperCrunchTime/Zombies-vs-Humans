@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,6 +52,8 @@ public class SignuploginAct extends Activity {
                     final String name;
                     name = playernmae.getText().toString();
 
+                    Log.d("Name", name);
+
                     //send the name to the gameactivity if the name exists.
                     //if the name doesent exist, create an entry jSON and do a post request to some server api that will handle things.
                     AndroidNetworking.get(LINK + "/{path}")
@@ -59,19 +63,23 @@ public class SignuploginAct extends Activity {
                             .getAsJSONArray(new JSONArrayRequestListener() {
                                 @Override
                                 public void onResponse(JSONArray response) {
+                                    Log.d("On response", "JSONArray");
                                     if (response.length() > 0)// if the name already exists on the server.
                                     {
                                         editor.putString("Name", name);
                                         editor.commit();
+                                        Log.d("Server", "Name Already Exists");
                                         StartGame(name);
                                     } else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
                                     {
+                                        Log.d("Client", "Send Name to Server");
                                         AndroidNetworking.post(LINK)
                                                 .addUrlEncodeFormBodyParameter("username", name)
                                                 .build()
                                                 .getAsString(new StringRequestListener() {
                                                     @Override
                                                     public void onResponse(String response) {
+                                                        Log.d("On response", "StringRequestListener");
                                                         editor.putString("Name", name);// saves the name to our editor object on empty JSON response
                                                         editor.commit();
                                                         StartGame(name);
@@ -79,7 +87,7 @@ public class SignuploginAct extends Activity {
 
                                                     @Override
                                                     public void onError(ANError anError) {
-
+                                                        Log.e("onError", "StringRequestListener", anError);
                                                     }
                                                 });
                                         //post request that makes the user
@@ -88,7 +96,7 @@ public class SignuploginAct extends Activity {
 
                                 @Override
                                 public void onError(ANError anError) {
-
+                                    Log.d("onError", "JSONArray");
                                 }
                             });
                 }

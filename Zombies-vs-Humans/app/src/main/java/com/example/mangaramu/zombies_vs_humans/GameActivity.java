@@ -71,7 +71,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayMap<String, PlayerItem> gameusers = new ArrayMap<>();
     Activity gamecontext = this;
     PullGamedatathread datagame;
-    String LINK = getResources().getString(R.string.URL);
+    String LINK;
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
     public static final int REQUEST_CHECK_SETTINGS = 1;
@@ -94,7 +94,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            datagame = new PullGamedatathread(gameusers, peopleupdate);
+            datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
             datagame.start();
         }
     };
@@ -134,8 +134,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
+        LINK = getResources().getString(R.string.URL);
         gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem()); //sets the username to their playeritem, the first item in gameusers should be the player themselves
-        datagame = new PullGamedatathread(gameusers, peopleupdate);
+        datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         myactivity = this;
