@@ -30,8 +30,8 @@ public class SignuploginAct extends Activity {
 
     EditText playernmae;
     Button play;
-    SharedPreferences sharedpref= getPreferences(MODE_PRIVATE);
-    SharedPreferences.Editor editor = sharedpref.edit();
+    SharedPreferences sharedpref;
+    SharedPreferences.Editor editor;
     String LINK = getResources().getString(R.string.URL);
 
     @Override
@@ -40,7 +40,8 @@ public class SignuploginAct extends Activity {
         AndroidNetworking.initialize(getApplicationContext());//for android networking!
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         setContentView(R.layout.signuplog);
-
+        sharedpref=getPreferences(Context.MODE_PRIVATE);
+        editor = sharedpref.edit();
 if(sharedpref.getString("Name","").equals("")) {
     playernmae = (EditText) findViewById(R.id.playername);
     play = (Button) findViewById(R.id.playbutt);
