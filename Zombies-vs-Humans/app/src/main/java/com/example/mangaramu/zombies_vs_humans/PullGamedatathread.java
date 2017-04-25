@@ -45,10 +45,10 @@ public class PullGamedatathread extends Thread {
                         try {
                             JSONArray users = response;
                             for (int x = 0; x < users.length(); x++) {
-                                String tmpuse = ((JSONObject) users.get(x)).getString("username");
-                                Double tmplat = ((JSONObject) users.get(x)).getDouble("lat");
-                                Double tmplong = ((JSONObject) users.get(x)).getDouble("long");
-                                String tmpstatus = ((JSONObject) users.get(x)).getString("iszombie");
+                                String tmpuse = ((JSONObject) users.get(x)).getString("Username");
+                                Double tmplat = ((JSONObject) users.get(x)).getDouble("Latitude");
+                                Double tmplong = ((JSONObject) users.get(x)).getDouble("Longitude");
+                                String tmpstatus = ((JSONObject) users.get(x)).getString("HumOrZomb");
 
                                 if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
                                     if (tmpuse.equals(gameusers.keyAt(0))) {
