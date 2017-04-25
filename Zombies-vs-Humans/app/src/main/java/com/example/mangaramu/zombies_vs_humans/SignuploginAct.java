@@ -22,17 +22,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by mangaramu on 4/20/2017.
- */
-
 public class SignuploginAct extends Activity {
 
     EditText playernmae;
     Button play;
     SharedPreferences sharedpref;
     SharedPreferences.Editor editor;
-    String LINK = getResources().getString(R.string.URL);
+    String LINK;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,9 +37,9 @@ public class SignuploginAct extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         setContentView(R.layout.signuplog);
 
-        sharedpref=getPreferences(Context.MODE_PRIVATE);
+        sharedpref = getPreferences(Context.MODE_PRIVATE);
         editor = sharedpref.edit();
-
+        LINK = getResources().getString(R.string.URL);
 
         if (sharedpref.getString("Name", "").equals("")) {
             playernmae = (EditText) findViewById(R.id.playername);
@@ -52,8 +48,8 @@ public class SignuploginAct extends Activity {
                 @Override
                 public void onClick(View view) {
                     final String name;
-
                     name = playernmae.getText().toString();
+
                     //send the name to the gameactivity if the name exists.
                     //if the name doesent exist, create an entry jSON and do a post request to some server api that will handle things.
                     AndroidNetworking.get(LINK + "/{path}")
