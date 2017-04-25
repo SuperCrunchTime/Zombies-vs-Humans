@@ -101,12 +101,15 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         BitmapDescriptor bd;
         float[] results = new float[1];
 
+        // Calculate distance between local user and other player
         if (local.getLattitude() != null) {
             Location.distanceBetween(local.getLattitude(), local.getLongitude(),
                     other.getLattitude(), other.getLongitude(), results);
         } else {
             results[0] = 30;
         }
+
+        // TODO Check distance and prompt alert dialog if the other player is close enough
 
         // Cool hues for Humans
         if (!other.isZombie()) {
