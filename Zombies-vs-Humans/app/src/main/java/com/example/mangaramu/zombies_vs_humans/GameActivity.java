@@ -173,8 +173,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 ////////////////////////////////////////////////////////////////////////
                 JSONObject userupdate = new JSONObject();
                 try {
-                    if (gameusers.get(0).getPlayername() != null) {
-                        userupdate.put("Username", gameusers.get(0).getPlayername())
+                    if (gameusers.get(gameusers.keyAt(0)).getPlayername() != null) {
+                        userupdate.put("Username", gameusers.get(gameusers.keyAt(0)).getPlayername())
                                 .put("Latitude", currlocation.getLatitude())
                                 .put("Longitude", currlocation.getLongitude());
                     }

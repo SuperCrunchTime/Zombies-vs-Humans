@@ -37,7 +37,8 @@ public class PullGamedatathread extends Thread {
 
     @Override
     public void run() {
-        AndroidNetworking.get(LINK + "/getusers")
+        AndroidNetworking.get(LINK + "/{path}")
+                .addPathParameter("path","getusers")
                 //pull data of locations from server
                 .build()
                 .getAsJSONArray(new JSONArrayRequestListener() {
