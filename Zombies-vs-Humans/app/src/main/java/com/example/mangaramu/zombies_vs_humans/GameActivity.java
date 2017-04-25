@@ -46,11 +46,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -106,29 +104,29 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         if (local.getLattitude() != null) {
             Location.distanceBetween(local.getLattitude(), local.getLongitude(),
                     other.getLattitude(), other.getLongitude(), results);
+        } else {
+            results[0] = 30;
+        }
 
-            // Cool hues for Humans
-            if (other.getHuorZomb().toLowerCase().equals("human")) {
-                if (results[0] <= 10) {
-                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-                } else if ((results[0] > 10) && (results[0] <= 20)) {
-                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-                } else {
-                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-                }
-                // Warm hues for Zombies
-            } else if (other.getHuorZomb().toLowerCase().equals("zombie")) {
-                if (results[0] <= 10) {
-                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-                } else if ((results[0] > 10) && (results[0] <= 20)) {
-                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
-                } else {
-                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-                }
-                // Green for error anomalies (errors)
+        // Cool hues for Humans
+        if (!other.isZombie()) {
+            if (results[0] <= 10) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+            } else if ((results[0] > 10) && (results[0] <= 20)) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
             } else {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
             }
+            // Warm hues for Zombies
+        } else if (other.isZombie()) {
+            if (results[0] <= 10) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+            } else if ((results[0] > 10) && (results[0] <= 20)) {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+            } else {
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+            }
+            // Green for error anomalies (errors)
         } else {
             bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
         }

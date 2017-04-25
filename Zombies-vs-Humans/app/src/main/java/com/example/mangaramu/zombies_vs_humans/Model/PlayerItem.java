@@ -1,9 +1,6 @@
 package com.example.mangaramu.zombies_vs_humans.Model;
 
-import android.location.Location;
 import android.support.annotation.Nullable;
-
-import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by mangaramu on 4/23/2017.
@@ -13,25 +10,25 @@ public class PlayerItem {
     String Playername;
     Double latt;
     Double longi;
-    String HuorZomb; // should be either nuull, Human, or Zombie
+    Boolean isZombie;
 
-    public PlayerItem(@Nullable String playername, @Nullable Double latt, @Nullable Double longi, @Nullable String huorZomb) {
+    public PlayerItem(@Nullable String playername, @Nullable Double latt, @Nullable Double longi, @Nullable Boolean isZombie) {
         Playername = playername;
         this.latt = latt;
         this.longi = longi;
-        HuorZomb = huorZomb;
+        this.isZombie = isZombie;
     }
 
     public PlayerItem() {
 
     }
 
-    public String getHuorZomb() {
-        return HuorZomb;
+    public Boolean isZombie() {
+        return isZombie;
     }
 
-    public void setHuorZomb(String huorZomb) {
-        HuorZomb = huorZomb;
+    public void setIsZombie(Boolean iszombie) {
+        isZombie = iszombie;
     }
 
     public String getPlayername() {

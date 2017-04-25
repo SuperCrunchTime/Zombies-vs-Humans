@@ -1,17 +1,12 @@
 package com.example.mangaramu.zombies_vs_humans;
 
-import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 
 import org.json.JSONArray;
@@ -50,15 +45,15 @@ public class PullGamedatathread extends Thread {
                                 String tmpuse = ((JSONObject) users.get(x)).getString("username");
                                 Double tmplat = ((JSONObject) users.get(x)).getDouble("lat");
                                 Double tmplong = ((JSONObject) users.get(x)).getDouble("long");
-                                String tmpstatus = ((JSONObject) users.get(x)).getString("iszombie");
+                                Boolean tmpstatus = ((JSONObject) users.get(x)).getBoolean("iszombie");
 
                                 if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
                                     if (tmpuse.equals(gameusers.keyAt(0))) {
-                                        gameusers.get(tmpuse).setHuorZomb(tmpstatus);
+                                        gameusers.get(tmpuse).setIsZombie(tmpstatus);
                                     } else {
                                         gameusers.get(tmpuse).setLattitude(tmplat);
                                         gameusers.get(tmpuse).setLongitude(tmplong);
-                                        gameusers.get(tmpuse).setHuorZomb(tmpstatus);
+                                        gameusers.get(tmpuse).setIsZombie(tmpstatus);
                                     }
                                 } else {// if we do not know of the player
                                     gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
