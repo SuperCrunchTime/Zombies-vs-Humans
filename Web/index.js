@@ -17,6 +17,7 @@ MongoClient.connect('mongodb://127.0.0.1:27017/zombiesvshumans', (err, database)
 
 app.get('/getusers', (req, res) =>{
   //Dumps the entire user table
+  console.log(db.collection('users').stats());
   var user = req.query.username;
   if(user!=null){
     var cursor = db.collection('users').find({username:user}).toArray(function(err, results){
@@ -44,6 +45,11 @@ app.post('/updateuser', (req, res) =>{
       console.log(req.body.lat!=null)
       if(req.body.username!=null && req.body.long!=null && req.body.lat!=null && req.body.iszombie!=null && req.body.lastupdated!=null ){
         db.collection('users').update({username: req.body.username}, {username:req.body.username, long:req.body.long, lat:req.body.lat, iszombie:req.body.iszombie, lastupdated:req.body.lastupdated});
+        db.collection('users').count({iszombie:'true'}, (err, result)=>{
+          if(result>= db.collection('users')){
+            //remix
+          }
+        });
       }
     }
   });
