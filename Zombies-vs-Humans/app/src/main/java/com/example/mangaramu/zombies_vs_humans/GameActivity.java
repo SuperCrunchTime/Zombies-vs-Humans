@@ -103,28 +103,32 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         BitmapDescriptor bd;
         float[] results = new float[1];
 
-        Location.distanceBetween(local.getLattitude(), local.getLongitude(),
-                other.getLattitude(), other.getLongitude(), results);
+        if (local.getLattitude() != null) {
+            Location.distanceBetween(local.getLattitude(), local.getLongitude(),
+                    other.getLattitude(), other.getLongitude(), results);
 
-        // Cool hues for Humans
-        if (other.getHuorZomb().toLowerCase().equals("human")) {
-            if (results[0] <= 10) {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-            } else if ((results[0] > 10) && (results[0] <= 20)) {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+            // Cool hues for Humans
+            if (other.getHuorZomb().toLowerCase().equals("human")) {
+                if (results[0] <= 10) {
+                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+                } else if ((results[0] > 10) && (results[0] <= 20)) {
+                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+                } else {
+                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+                }
+                // Warm hues for Zombies
+            } else if (other.getHuorZomb().toLowerCase().equals("zombie")) {
+                if (results[0] <= 10) {
+                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                } else if ((results[0] > 10) && (results[0] <= 20)) {
+                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+                } else {
+                    bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+                }
+                // Green for error anomalies (errors)
             } else {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
             }
-            // Warm hues for Zombies
-        } else if (other.getHuorZomb().toLowerCase().equals("zombie")) {
-            if (results[0] <= 10) {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-            } else if ((results[0] > 10) && (results[0] <= 20)) {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
-            } else {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-            }
-            // Green for error anomalies (errors)
         } else {
             bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
         }
@@ -135,7 +139,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
         LINK = getResources().getString(R.string.URL);
-        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"),null,null,null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
+        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"), null, null, null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
         datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
@@ -169,10 +173,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 ////////////////////////////////////////////////////////////////////////
                 JSONObject userupdate = new JSONObject();
                 try {
-                    userupdate.put("Username", gameusers.get(0).getPlayername())
-                            .put("Latitude", currlocation.getLatitude())
-                            .put("Longitude", currlocation.getLongitude());
-
+                    if (gameusers.get(0).getPlayername() != null) {
+                        userupdate.put("Username", gameusers.get(0).getPlayername())
+                                .put("Latitude", currlocation.getLatitude())
+                                .put("Longitude", currlocation.getLongitude());
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
