@@ -20,6 +20,7 @@ public class PlayerItem {
         this.longi = longi;
         HuorZomb = huorZomb;
     }
+
     public PlayerItem() {
 
     }
@@ -43,14 +44,16 @@ public class PlayerItem {
     public Double getLattitude() {
         return this.latt;
     }
+
     public Double getLongitude() {
         return this.longi;
     }
 
     public void setLattitude(Double position) {
-        this.latt=position;
+        this.latt = position;
     }
+
     public void setLongitude(Double position) {
-        this.longi=position;
+        this.longi = position;
     }
 }
