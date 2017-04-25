@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.annotation.Nullable;
@@ -72,10 +73,9 @@ public class SignuploginAct extends Activity {
                                         StartGame(name);
                                     } else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
                                     {
-                                        Log.d("Client", "Send Name to Server" + "  " + AndroidNetworking.post(LINK)
-                                                .addUrlEncodeFormBodyParameter("username", name)
-                                                .build().toString());
-                                        AndroidNetworking.post(LINK)
+                                        Log.d("Client", "Send Name to Server");
+                                        AndroidNetworking.post(LINK+"/{path}")
+                                                .addPathParameter("path","updateuser")
                                                 .addUrlEncodeFormBodyParameter("username", name)
                                                 .build()
                                                 .getAsString(new StringRequestListener() {
