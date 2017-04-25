@@ -3,38 +3,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/loginBackground"
 
     tools:context="com.example.mangaramu.zombies_vs_humans.GameActivity">
+
+    <TextView
+        android:id="@+id/something"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:fontFamily="cursive"
+        android:text="@string/ZombiesvsHumans"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="45sp"
+        android:typeface="sans"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="19dp" />
 
 
     <EditText
         android:id="@+id/playername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="168dp"
-        android:hint="@string/login_username_hint"
         android:ems="10"
+        android:hint="@string/login_username_hint"
         android:inputType="textPersonName"
-        />
+        android:textAlignment="center"
+        android:layout_below="@+id/something"
+        android:layout_alignEnd="@+id/something"
+        android:layout_marginTop="108dp" />
 
-    <TextView
-        android:id="@+id/something"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="44dp"
-        android:textSize="35sp"
-        android:text="@string/ZombiesvsHumans"
-        />
 
     <Button
         android:id="@+id/playbutt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/Play" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/something"
+        android:layout_marginBottom="112dp"
+        android:layout_marginStart="76dp"
+        android:background="@drawable/btnbackground"
+        android:backgroundTint="?android:attr/colorControlHighlight"
+        android:fadingEdge="horizontal|vertical"
+        android:requiresFadingEdge="horizontal|vertical"
+        android:text="@string/Play"
+        android:textAlignment="gravity"
+        android:textColor="@android:color/darker_gray"
+        android:textDirection="ltr" />
+
 </RelativeLayout>
