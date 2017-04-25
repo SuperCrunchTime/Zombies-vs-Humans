@@ -72,7 +72,9 @@ public class SignuploginAct extends Activity {
                                         StartGame(name);
                                     } else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
                                     {
-                                        Log.d("Client", "Send Name to Server");
+                                        Log.d("Client", "Send Name to Server" + "  " + AndroidNetworking.post(LINK)
+                                                .addUrlEncodeFormBodyParameter("username", name)
+                                                .build().toString());
                                         AndroidNetworking.post(LINK)
                                                 .addUrlEncodeFormBodyParameter("username", name)
                                                 .build()
