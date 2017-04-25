@@ -23,68 +23,65 @@ import org.json.JSONObject;
 
 public class PullGamedatathread extends Thread {
 
-    ArrayMap<String,PlayerItem> gameusers;
+    ArrayMap<String, PlayerItem> gameusers;
     Boolean running = true;
     String LINK = Resources.getSystem().getString(R.string.URL);
     Handler handle;
-    PullGamedatathread(ArrayMap<String,PlayerItem> x, Handler y)
-    {
-        gameusers=x;
-        handle=y;
+
+    PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y) {
+        gameusers = x;
+        handle = y;
     }
 
     @Override
     public void run() {
+        AndroidNetworking.get(LINK + "/getusers")
+                //pull data of locations from server
+                .build()
+                .getAsJSONArray(new JSONArrayRequestListener() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            JSONArray users = response;
+                            for (int x = 0; x < users.length(); x++) {
+                                String tmpuse = ((JSONObject) users.get(x)).getString("Username");
+                                Double tmplat = ((JSONObject) users.get(x)).getDouble("Latitude");
+                                Double tmplong = ((JSONObject) users.get(x)).getDouble("Longitude");
+                                String tmpstatus = ((JSONObject) users.get(x)).getString("HumOrZomb");
 
-            AndroidNetworking.get(LINK+"/getusers")
-                     //pull data of locations from server
-                    .build()
-                    .getAsJSONArray(new JSONArrayRequestListener() {
-                        @Override
-                        public void onResponse(JSONArray response) {
-                            try {
-                                JSONArray users = response;
-                                for (int x = 0; x < users.length(); x++) {
-                                    String tmpuse = ((JSONObject) users.get(x)).getString("Username");
-                                    Double tmplat = ((JSONObject) users.get(x)).getDouble("Latitude");
-                                    Double tmplong = ((JSONObject) users.get(x)).getDouble("Longitude");
-                                    String tmpstatus = ((JSONObject) users.get(x)).getString("HumOrZomb");
-
-                                    if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
-                                        if (tmpuse.equals(gameusers.keyAt(0))) {
-                                            gameusers.get(tmpuse).setHuorZomb(tmpstatus);
-                                        } else {
-                                            gameusers.get(tmpuse).setLattitude(tmplat);
-                                            gameusers.get(tmpuse).setLongitude(tmplong);
-                                            gameusers.get(tmpuse).setHuorZomb(tmpstatus);
-
-                                        }
-                                    } else {// if we do not know of the player
-                                        gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
+                                if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
+                                    if (tmpuse.equals(gameusers.keyAt(0))) {
+                                        gameusers.get(tmpuse).setHuorZomb(tmpstatus);
+                                    } else {
+                                        gameusers.get(tmpuse).setLattitude(tmplat);
+                                        gameusers.get(tmpuse).setLongitude(tmplong);
+                                        gameusers.get(tmpuse).setHuorZomb(tmpstatus);
                                     }
+                                } else {// if we do not know of the player
+                                    gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
                                 }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+                    }
 
-                        @Override
-                        public void onError(ANError anError) {
+                    @Override
+                    public void onError(ANError anError) {
 
-                        }
-                    });
+                    }
+                });
 
-            android.os.SystemClock.sleep(500);// sleep 500 milisecconds
+        android.os.SystemClock.sleep(500);// sleep 500 milisecconds
 
-            Message m = Message.obtain();//send empty message prompting
-            m.setTarget(handle);
-            m.sendToTarget();
+        Message m = Message.obtain();//send empty message prompting
+        m.setTarget(handle);
+        m.sendToTarget();
 
     }
 
-    public void norun()
-    {
-        running=false;
+    public void norun() {
+        running = false;
     }
 }

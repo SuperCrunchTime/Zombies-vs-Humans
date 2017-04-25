@@ -115,7 +115,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
             }
-        // Warm hues for Zombies
+            // Warm hues for Zombies
         } else if (other.getHuorZomb().toLowerCase().equals("zombie")) {
             if (results[0] <= 10) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
@@ -124,7 +124,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
             }
-        // Green for error anomalies (errors)
+            // Green for error anomalies (errors)
         } else {
             bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
         }
