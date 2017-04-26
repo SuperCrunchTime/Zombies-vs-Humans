@@ -3,6 +3,7 @@ package com.example.mangaramu.zombies_vs_humans;
 import android.os.Handler;
 import android.os.Message;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -10,19 +11,23 @@ import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class PullGamedatathread extends Thread {
+public class PullGameDataThread extends Thread {
 
-    ArrayMap<String, PlayerItem> gameusers;
+    String myUsername;
+    ArrayMap<String, PlayerItem> gameUsers;
     Boolean running = true;
     String LINK;
     Handler handle;
+    String tmpuse;
     Double tmplong, tmplat;
-    PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y, String link) {
-        gameusers = x;
+    Boolean tmpstatus;
+
+    PullGameDataThread(String mUsername, ArrayMap<String, PlayerItem> x, Handler y, String link) {
+        myUsername = mUsername;
+        gameUsers = x;
         handle = y;
         LINK = link;
     }
@@ -30,48 +35,45 @@ public class PullGamedatathread extends Thread {
     @Override
     public void run() {
         AndroidNetworking.get(LINK + "/{path}")
-                .addPathParameter("path","getusers")
+                .addPathParameter("path", "getusers")
                 //pull data of locations from server
                 .build()
                 .getAsJSONArray(new JSONArrayRequestListener() {
                     @Override
                     public void onResponse(JSONArray response) {
-                            JSONArray users = response;
-                            for (int x = 0; x < users.length(); x++) {
-                                try {
-                                    String tmpuse = ((JSONObject) users.get(x)).getString("username");
-                                    tmplat = ((JSONObject) users.get(x)).getDouble("lat");
-                                    tmplong = ((JSONObject) users.get(x)).getDouble("long");
-                                    Boolean tmpstatus = ((JSONObject) users.get(x)).getBoolean("iszombie");
+                        JSONArray users = response;
+                        for (int x = 0; x < users.length(); x++) {
+                            try {
+                                tmpuse = ((JSONObject) users.get(x)).getString("username");
+                                tmplat = ((JSONObject) users.get(x)).getDouble("lat");
+                                tmplong = ((JSONObject) users.get(x)).getDouble("long");
+                                tmpstatus = ((JSONObject) users.get(x)).getBoolean("iszombie");
 
-                                if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
-                                    if (tmpuse.equals(gameusers.keyAt(0))) {
-                                        gameusers.get(tmpuse).setIsZombie(tmpstatus);
+                                if (gameUsers.containsKey(tmpuse)) { //If the user is already within our array
+                                    if (tmpuse.equals(myUsername)) {
+                                        gameUsers.get(tmpuse).setIsZombie(tmpstatus);
                                     } else {
-                                        if(tmplong!=null && tmplat!=null) {
-                                            gameusers.get(tmpuse).setLattitude(tmplat);
-                                            gameusers.get(tmpuse).setLongitude(tmplong);
-                                        }
-                                        gameusers.get(tmpuse).setIsZombie(tmpstatus);
+                                        gameUsers.get(tmpuse).setPlayerName(tmpuse);
+                                        gameUsers.get(tmpuse).setLatitude(tmplat);
+                                        gameUsers.get(tmpuse).setLongitude(tmplong);
+                                        gameUsers.get(tmpuse).setIsZombie(tmpstatus);
                                     }
                                 } else {// if we do not know of the player
-                                    gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
-
+                                    gameUsers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
                                 }
-                                } catch (Exception e){
-
-                                }
+                            } catch (Exception e) {
+                                Log.e("PullGameDataThread", e.toString());
                             }
-
+                        }
                     }
 
                     @Override
                     public void onError(ANError anError) {
-
+                        Log.e("PullGameDataThread", anError.toString());
                     }
                 });
 
-        android.os.SystemClock.sleep(5000);// sleep 5000 milisecconds
+        android.os.SystemClock.sleep(1000);// sleep 5000 milisecconds
 
         Message m = Message.obtain();//send empty message prompting
         m.setTarget(handle);
