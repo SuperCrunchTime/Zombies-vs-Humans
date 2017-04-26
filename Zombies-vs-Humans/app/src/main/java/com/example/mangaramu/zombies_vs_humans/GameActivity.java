@@ -100,6 +100,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                                 .position(new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()))
                                 .title(entry.getKey())
                                 .icon(bd);
+                        Markers.get(entry.getKey()).remove();
                         Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
                     }
                 }
