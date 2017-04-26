@@ -42,40 +42,45 @@ app.post('/updateuser', (req, res) =>{
       });
     } else {
       //If the user does exist, update the entry. Prob better way to do this
-      console.log(req.body.lat!=null)
-      //if(req.body.username!=null && req.body.long!=null && req.body.lat!=null && req.body.iszombie!=null && req.body.lastupdated!=null ){
-        //db.collection('users').update({username: req.body.username}, {username:req.body.username, long:req.body.long, lat:req.body.lat, iszombie:req.body.iszombie, lastupdated:req.body.lastupdated});
-        console.log(req.body.iszombie);
-        if(req.body.long!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {long:req.body.long } });
+      if(req.body.long!=null){
+        db.collection('users').update({username: req.body.username}, { $set: {long:req.body.long } });
+      }
+      if(req.body.lat!=null){
+        db.collection('users').update({username: req.body.username}, { $set: {lat:req.body.lat } });
+      }
+      if(req.body.iszombie!=null){
+        db.collection('users').update({username: req.body.username}, { $set: {iszombie:req.body.iszombie } });
+      }
+      if(req.body.lastupdated!=null){
+        db.collection('users').update({username: req.body.username}, { $set: {lastupdated:req.body.lastupdated } });
+      }
+
+      var dbSize;
+      db.collection('users').count((err, results)=>{
+        if(err) return (console.log(err));
+        dbSize = results;
+      });
+
+      db.collection('users').count({iszombie:'true'}, (err, result)=>{
+        if(err) return (console.log(err));
+        if(result==dbSize){
+          console.log("New Game");
+          db.collection('users').updateMany({ }, {$set:{iszombie:"false"}});
+
+          var randomNumber = Math.floor(Math.random()*dbSize);
+
+          db.collection('users').find().limit(-1).skip(randomNumber).next((err, result)=>{
+            db.collection('users').update({username: result.username}, {$set:{iszombie:"true"}});
+            console.log(result.username +" is now the zombie");
+          });
         }
-        if(req.body.lat!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {lat:req.body.lat } });
-        }
-        if(req.body.iszombie!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {iszombie:req.body.iszombie } });
-        }
-        if(req.body.lastupdated!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {lastupdated:req.body.lastupdated } });
-        }
-        var dbSize;
-        db.collection('users').count((err, results)=>{
-          if(err) return (console.log(err));
-          dbSize = results;
-        });
-        db.collection('users').count({iszombie:'true'}, (err, result)=>{
-          if(err) return (console.log(err));
-          if(result==dbSize){
-            //remix
-          }
-        });
-      //}
+      });
+
     }
   });
   res.end('yes');
   //change this to got tagged for tagged, and new game for new game
 });
-
 
 app.post('/taguser', (req, res) =>{
   db.collection('users').find({username: req.body.username}).toArray((err, results)=>{
@@ -84,6 +89,6 @@ app.post('/taguser', (req, res) =>{
       if(req.body.iszombie!=null){
         db.collection('users').update({username: req.body.username}, { $set: {iszombie:"true" } });
       }
-  }
-})
+    }
+  })
 });
