@@ -23,7 +23,7 @@ public class PullGamedatathread extends Thread {
     Boolean running = true;
     String LINK;
     Handler handle;
-
+    Double tmplong, tmplat;
     PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y, String link) {
         gameusers = x;
         handle = y;
@@ -39,31 +39,33 @@ public class PullGamedatathread extends Thread {
                 .getAsJSONArray(new JSONArrayRequestListener() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        try {
                             JSONArray users = response;
                             for (int x = 0; x < users.length(); x++) {
-                                String tmpuse = ((JSONObject) users.get(x)).getString("username");
-                                Double tmplat = ((JSONObject) users.get(x)).getDouble("lat");
-                                Double tmplong = ((JSONObject) users.get(x)).getDouble("long");
-                                Boolean tmpstatus = ((JSONObject) users.get(x)).getBoolean("iszombie");
+                                try {
+                                    String tmpuse = ((JSONObject) users.get(x)).getString("username");
+                                    tmplat = ((JSONObject) users.get(x)).getDouble("lat");
+                                    tmplong = ((JSONObject) users.get(x)).getDouble("long");
+                                    Boolean tmpstatus = ((JSONObject) users.get(x)).getBoolean("iszombie");
 
                                 if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
                                     if (tmpuse.equals(gameusers.keyAt(0))) {
                                         gameusers.get(tmpuse).setIsZombie(tmpstatus);
                                     } else {
-                                        gameusers.get(tmpuse).setLattitude(tmplat);
-                                        gameusers.get(tmpuse).setLongitude(tmplong);
+                                        if(tmplong!=null && tmplat!=null) {
+                                            gameusers.get(tmpuse).setLattitude(tmplat);
+                                            gameusers.get(tmpuse).setLongitude(tmplong);
+                                        }
                                         gameusers.get(tmpuse).setIsZombie(tmpstatus);
                                     }
                                 } else {// if we do not know of the player
                                     gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
 
                                 }
+                                } catch (Exception e){
+
+                                }
                             }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
                     }
 
                     @Override

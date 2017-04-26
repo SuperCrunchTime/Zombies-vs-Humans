@@ -126,6 +126,9 @@ public class SignuploginAct extends Activity {
                                         AndroidNetworking.post(LINK+"/{path}")
                                                 .addPathParameter("path","updateuser")
                                                 .addUrlEncodeFormBodyParameter("username", name)
+                                                .addUrlEncodeFormBodyParameter("lat", "0")
+                                                .addUrlEncodeFormBodyParameter("long", "0")
+                                                .addUrlEncodeFormBodyParameter("iszombie", "false")
                                                 .build()
                                                 .getAsString(new StringRequestListener() {
                                                     @Override
