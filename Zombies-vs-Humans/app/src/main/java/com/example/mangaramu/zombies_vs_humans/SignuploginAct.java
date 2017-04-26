@@ -119,7 +119,7 @@ public class SignuploginAct extends Activity {
                                         editor.putString("Name", name);
                                         editor.commit();
                                         Log.d("Server", "Name Already Exists");
-                                        StartGame(name);
+                                        StartGame(name, 0.0, 0.0, false);
                                     } else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
                                     {
                                         Log.d("Client", "Send Name to Server");
@@ -136,7 +136,7 @@ public class SignuploginAct extends Activity {
                                                         Log.d("On response", "StringRequestListener");
                                                         editor.putString("Name", name);// saves the name to our editor object on empty JSON response
                                                         editor.commit();
-                                                        StartGame(name);
+                                                        StartGame(name, 0.0, 0.0, false);
                                                     }
 
                                                     @Override
@@ -158,7 +158,7 @@ public class SignuploginAct extends Activity {
         } else {
             String shared;
             shared = sharedpref.getString("Name", "");
-            StartGame(shared); //starts the game activity
+            StartGame(shared, 0.0, 0.0, false); //starts the game activity
         }
     }
 
@@ -192,11 +192,14 @@ public class SignuploginAct extends Activity {
         super.onDestroy();
     }
 
-    public void StartGame(String name)// Takes in a string called name. Returns null. Will create an intent to start the GameActivity while also putting the inserted string as an extra to the application.
+    public void StartGame(String name, Double lat, Double lng, Boolean isZombie)// Takes in a string called name. Returns null. Will create an intent to start the GameActivity while also putting the inserted string as an extra to the application.
     {
 
         Intent start = new Intent(this, GameActivity.class);
         start.putExtra("Username", name);
+        start.putExtra("Latitude", lat);
+        start.putExtra("Longitude", lng);
+        start.putExtra("isZombie", isZombie);
         startActivity(start);
     }
 }

@@ -56,7 +56,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,ZombieConversionDialogFragment.Converted {
+public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, ZombieConversionDialogFragment.Converted {
 
     ArrayMap<String, Marker> Markers = new ArrayMap<>();
     SupportMapFragment gogmymap;
@@ -74,7 +74,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayMap<String, PlayerItem> gameusers = new ArrayMap<>();
     Activity gamecontext = this;
     PullGamedatathread datagame;
-    int powerdistance=20;
+    int powerdistance = 20;
     String LINK;
     ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
     MapRipple mapRipple;
@@ -102,7 +102,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
                     }
 
-                    if (!ripplePresent && (!entry.getKey().equals(gameusers.keyAt(0)))) {
+                    if (!ripplePresent && (entry.getKey().equals(gameusers.keyAt(0)))) {
                         mapRipple = new MapRipple(mymap,
                                 new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()),
                                 getApplicationContext());
@@ -110,7 +110,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         mapRipple.withFillColor(Color.BLUE);
                         mapRipple.withStrokeColor(Color.BLACK);
                         mapRipple.withStrokewidth(10);      // 10dp
-                        mapRipple.withDistance(2000);      // 2000 metres radius
+                        mapRipple.withDistance(100);      // 2000 metres radius
                         mapRipple.withRippleDuration(12000);    //12000ms
                         mapRipple.withTransparency(0.7f);
 
@@ -121,17 +121,14 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
                 if (gameusers.get(gameusers.keyAt(0)).isZombie()) {
-                    if(gameusers.get(gameusers.keyAt(0)).getLatitude()!=null) {
-                        if(dialog.isVisible())//checks to see if we already have a dialog up and  are still in range
+                    if (gameusers.get(gameusers.keyAt(0)).getLatitude() != null) {
+                        if (dialog.isVisible())//checks to see if we already have a dialog up and  are still in range
                         {
-                            float [] tmp2 = new float[1];
-                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLatitude(),gameusers.get(gameusers.keyAt(0)).getLongitude(),gameusers.get(dialog.getUsername()).getLatitude(),gameusers.get(dialog.getUsername()).getLongitude(),tmp2);
-                            if(tmp2[0]<=powerdistance)
-                            {
+                            float[] tmp2 = new float[1];
+                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLatitude(), gameusers.get(gameusers.keyAt(0)).getLongitude(), gameusers.get(dialog.getUsername()).getLatitude(), gameusers.get(dialog.getUsername()).getLongitude(), tmp2);
+                            if (tmp2[0] <= powerdistance) {
                                 return;
-                            }
-                            else
-                            {
+                            } else {
                                 dialog.dismiss();
                             }
                         }
@@ -143,29 +140,24 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                             }
                         }
 
-                        for(int z = 0 ; z<humanz.size();z++)
-                        {
-                            float [] tmp = new float[1];
-                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLatitude(),gameusers.get(gameusers.keyAt(0)).getLongitude(),gameusers.get(humanz.get(z)).getLatitude(),gameusers.get(humanz.get(z)).getLongitude(),tmp);
-                            if(tmp[0]<=powerdistance)
-                            {
+                        for (int z = 0; z < humanz.size(); z++) {
+                            float[] tmp = new float[1];
+                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLatitude(), gameusers.get(gameusers.keyAt(0)).getLongitude(), gameusers.get(humanz.get(z)).getLatitude(), gameusers.get(humanz.get(z)).getLongitude(), tmp);
+                            if (tmp[0] <= powerdistance) {
                                 dialog.setUsername(humanz.get(z));
-                                dialog.show(getSupportFragmentManager(),"dialog");
+                                dialog.show(getSupportFragmentManager(), "dialog");
 
                             }
                             break;
-
                         }
-
-
                     } else {
 
                     }
                 }
             }
 
-                datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
-                datagame.start();
+            datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
+            datagame.start();
 
         }
     };
@@ -214,7 +206,12 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
         LINK = getResources().getString(R.string.URL);
-        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"), null, null, null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
+        gameusers.put(getIntent().getStringExtra("Username"),
+                new PlayerItem(
+                        getIntent().getStringExtra("Username"),
+                        getIntent().getDoubleExtra("Latitude", 0),
+                        getIntent().getDoubleExtra("Longitude", 0),
+                        getIntent().getBooleanExtra("isZombie", false))); //sets the username to their playeritem, the first item in gameusers should be the player themselves
         datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         myactivity = this;
@@ -251,10 +248,10 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                 ////////////////////////////////////////////////////////////////////////
 
-                AndroidNetworking.post(LINK+"/{path}")//send data of user location to server
-                        .addPathParameter("path","updateuser")
-                        .addUrlEncodeFormBodyParameter("username",gameusers.get(gameusers.keyAt(0)).getPlayername())
-                        .addUrlEncodeFormBodyParameter("lat",Double.toString(currlocation.getLatitude()))
+                AndroidNetworking.post(LINK + "/{path}")//send data of user location to server
+                        .addPathParameter("path", "updateuser")
+                        .addUrlEncodeFormBodyParameter("username", gameusers.get(gameusers.keyAt(0)).getPlayername())
+                        .addUrlEncodeFormBodyParameter("lat", Double.toString(currlocation.getLatitude()))
                         .addUrlEncodeFormBodyParameter("long", Double.toString(currlocation.getLongitude()))
                         .build()
                         .getAsJSONObject(new JSONObjectRequestListener() {
@@ -306,6 +303,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStart() {
         super.onStart();
+        if (mapRipple != null) {
+            if (!mapRipple.isAnimationRunning()) {
+                mapRipple.startRippleMapAnimation();
+            }
+        }
     }
 
     @Override
@@ -517,9 +519,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void convert(String user) {
-        AndroidNetworking.post(LINK+"/{path}")
-                .addPathParameter("path","taguser")
-                .addUrlEncodeFormBodyParameter("username",user)
+        AndroidNetworking.post(LINK + "/{path}")
+                .addPathParameter("path", "taguser")
+                .addUrlEncodeFormBodyParameter("username", user)
                 .build();
     }
 }
