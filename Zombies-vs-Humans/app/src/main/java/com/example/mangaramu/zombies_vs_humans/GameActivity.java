@@ -78,7 +78,6 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     String LINK;
     ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
     MapRipple mapRipple;
-    Boolean ripplePresent = false;
 
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
@@ -101,25 +100,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                                 .icon(bd);
                         Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
                     }
-
-                    if (!ripplePresent && (entry.getKey().equals(gameusers.keyAt(0)))) {
-                        mapRipple = new MapRipple(mymap,
-                                new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()),
-                                getApplicationContext());
-                        mapRipple.withNumberOfRipples(3);
-                        mapRipple.withFillColor(Color.BLUE);
-                        mapRipple.withStrokeColor(Color.BLACK);
-                        mapRipple.withStrokewidth(10);      // 10dp
-                        mapRipple.withDistance(100);      // 2000 metres radius
-                        mapRipple.withRippleDuration(12000);    //12000ms
-                        mapRipple.withTransparency(0.7f);
-
-                        if (!mapRipple.isAnimationRunning()) {
-                            mapRipple.startRippleMapAnimation();
-                            ripplePresent = true;
-                        }
-                    }
                 }
+
                 if (gameusers.get(gameusers.keyAt(0)).isZombie()) {
                     if (gameusers.get(gameusers.keyAt(0)).getLatitude() != null) {
                         if (dialog.isVisible())//checks to see if we already have a dialog up and  are still in range
@@ -239,6 +221,26 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                 currlocation = location;
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
+                if (mapRipple == null) {
+                    mapRipple = new MapRipple(mymap, tmp, getApplicationContext());
+                    mapRipple.withNumberOfRipples(3);
+                    if (!gameusers.valueAt(0).isZombie()) {
+                        mapRipple.withFillColor(Color.BLUE);
+                    } else {
+                        mapRipple.withFillColor(Color.RED);
+                    }
+                    mapRipple.withStrokeColor(Color.BLACK);
+                    mapRipple.withStrokewidth(10);      // 10dp
+                    mapRipple.withDistance(30);      // 2000 metres radius
+                    mapRipple.withRippleDuration(12000);    //12000ms
+                    mapRipple.withTransparency(0.7f);
+
+                    if (!mapRipple.isAnimationRunning()) {
+                        mapRipple.startRippleMapAnimation();
+                    }
+                } else {
+                    mapRipple.withLatLng(tmp);
+                }
                 CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
                 mymap.moveCamera(camup2);
                 CameraUpdate camup = CameraUpdateFactory.zoomTo(19.0f);
@@ -346,6 +348,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         mymap = googleMap;
 
         mymap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+        mymap.getUiSettings().setMapToolbarEnabled(false);
+        mymap.getUiSettings().setZoomControlsEnabled(true);
+        mymap.setMyLocationEnabled(true);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -385,8 +390,6 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 return true;// setting true allows nondefault behavior
             }
         });
-
-        mymap.setMyLocationEnabled(true);
     }
 
     @Override
