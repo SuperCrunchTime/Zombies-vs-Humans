@@ -39,7 +39,7 @@ public class PlayerItem {
         Playername = playername;
     }
 
-    public Double getLattitude() {
+    public Double getLatitude() {
         return this.latt;
     }
 
