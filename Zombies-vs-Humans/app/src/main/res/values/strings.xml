@@ -7,6 +7,7 @@
     <string name="Zombie">You are Infected</string>
     <string name = "URL">http://13.82.96.69</string>
     <string name="checkpath">getusers</string>
+    <string name="updateuser">updateuser</string>
     <string name="login_username_hint">Enter Name</string>
 
 </resources>

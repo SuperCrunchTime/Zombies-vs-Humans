@@ -1,16 +1,12 @@
 package com.example.mangaramu.zombies_vs_humans;
 
-import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
-import android.provider.Settings;
 import android.util.ArrayMap;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 
 import org.json.JSONArray;
@@ -25,17 +21,19 @@ public class PullGamedatathread extends Thread {
 
     ArrayMap<String, PlayerItem> gameusers;
     Boolean running = true;
-    String LINK = Resources.getSystem().getString(R.string.URL);
+    String LINK;
     Handler handle;
 
-    PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y) {
+    PullGamedatathread(ArrayMap<String, PlayerItem> x, Handler y, String link) {
         gameusers = x;
         handle = y;
+        LINK = link;
     }
 
     @Override
     public void run() {
-        AndroidNetworking.get(LINK + "/getusers")
+        AndroidNetworking.get(LINK + "/{path}")
+                .addPathParameter("path","getusers")
                 //pull data of locations from server
                 .build()
                 .getAsJSONArray(new JSONArrayRequestListener() {
@@ -44,18 +42,18 @@ public class PullGamedatathread extends Thread {
                         try {
                             JSONArray users = response;
                             for (int x = 0; x < users.length(); x++) {
-                                String tmpuse = ((JSONObject) users.get(x)).getString("Username");
-                                Double tmplat = ((JSONObject) users.get(x)).getDouble("Latitude");
-                                Double tmplong = ((JSONObject) users.get(x)).getDouble("Longitude");
-                                String tmpstatus = ((JSONObject) users.get(x)).getString("HumOrZomb");
+                                String tmpuse = ((JSONObject) users.get(x)).getString("username");
+                                Double tmplat = ((JSONObject) users.get(x)).getDouble("lat");
+                                Double tmplong = ((JSONObject) users.get(x)).getDouble("long");
+                                Boolean tmpstatus = ((JSONObject) users.get(x)).getBoolean("iszombie");
 
                                 if (gameusers.containsKey(tmpuse)) { //If the user is already within our array
                                     if (tmpuse.equals(gameusers.keyAt(0))) {
-                                        gameusers.get(tmpuse).setHuorZomb(tmpstatus);
+                                        gameusers.get(tmpuse).setIsZombie(tmpstatus);
                                     } else {
                                         gameusers.get(tmpuse).setLattitude(tmplat);
                                         gameusers.get(tmpuse).setLongitude(tmplong);
-                                        gameusers.get(tmpuse).setHuorZomb(tmpstatus);
+                                        gameusers.get(tmpuse).setIsZombie(tmpstatus);
                                     }
                                 } else {// if we do not know of the player
                                     gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
@@ -73,7 +71,7 @@ public class PullGamedatathread extends Thread {
                     }
                 });
 
-        android.os.SystemClock.sleep(500);// sleep 500 milisecconds
+        android.os.SystemClock.sleep(5000);// sleep 5000 milisecconds
 
         Message m = Message.obtain();//send empty message prompting
         m.setTarget(handle);

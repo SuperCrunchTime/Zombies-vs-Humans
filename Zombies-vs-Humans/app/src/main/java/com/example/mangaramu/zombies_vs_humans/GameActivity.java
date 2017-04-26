@@ -46,11 +46,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -71,7 +69,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayMap<String, PlayerItem> gameusers = new ArrayMap<>();
     Activity gamecontext = this;
     PullGamedatathread datagame;
-    String LINK = getResources().getString(R.string.URL);
+    String LINK;
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
     public static final int REQUEST_CHECK_SETTINGS = 1;
@@ -94,7 +92,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            datagame = new PullGamedatathread(gameusers, peopleupdate);
+            datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
             datagame.start();
         }
     };
@@ -103,20 +101,27 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         BitmapDescriptor bd;
         float[] results = new float[1];
 
-        Location.distanceBetween(local.getLattitude(), local.getLongitude(),
-                other.getLattitude(), other.getLongitude(), results);
+        // Calculate distance between local user and other player
+        if (local.getLattitude() != null) {
+            Location.distanceBetween(local.getLattitude(), local.getLongitude(),
+                    other.getLattitude(), other.getLongitude(), results);
+        } else {
+            results[0] = 30;
+        }
+
+        // TODO Check distance and prompt alert dialog if the other player is close enough
 
         // Cool hues for Humans
-        if (other.getHuorZomb().toLowerCase().equals("human")) {
+        if (!other.isZombie()) {
             if (results[0] <= 10) {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
             } else if ((results[0] > 10) && (results[0] <= 20)) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
             } else {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
             }
             // Warm hues for Zombies
-        } else if (other.getHuorZomb().toLowerCase().equals("zombie")) {
+        } else if (other.isZombie()) {
             if (results[0] <= 10) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
             } else if ((results[0] > 10) && (results[0] <= 20)) {
@@ -134,8 +139,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
-        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem()); //sets the username to their playeritem, the first item in gameusers should be the player themselves
-        datagame = new PullGamedatathread(gameusers, peopleupdate);
+        LINK = getResources().getString(R.string.URL);
+        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"), null, null, null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
+        datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         myactivity = this;
@@ -168,10 +174,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 ////////////////////////////////////////////////////////////////////////
                 JSONObject userupdate = new JSONObject();
                 try {
-                    userupdate.put("Username", gameusers.get(0).getPlayername())
-                            .put("Latitude", currlocation.getLatitude())
-                            .put("Longitude", currlocation.getLongitude());
-
+                    if (gameusers.get(gameusers.keyAt(0)).getPlayername() != null) {
+                        userupdate.put("Username", gameusers.get(gameusers.keyAt(0)).getPlayername())
+                                .put("Latitude", currlocation.getLatitude())
+                                .put("Longitude", currlocation.getLongitude());
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

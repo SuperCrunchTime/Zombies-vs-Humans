@@ -26,6 +26,8 @@
         android:id="@+id/zombhummap"
         android:layout_below="@id/Status"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         />
 
 </RelativeLayout>
