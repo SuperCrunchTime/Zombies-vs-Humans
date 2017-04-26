@@ -46,7 +46,7 @@
     "elementType": "labels.icon",
     "stylers": [
       {
-        "visibility": "off"
+        "visibility": "on"
       }
     ]
   },
@@ -82,7 +82,7 @@
     "elementType": "all",
     "stylers": [
       {
-        "visibility": "simplified"
+        "visibility": "on"
       }
     ]
   },
@@ -103,7 +103,7 @@
     "elementType": "geometry.fill",
     "stylers": [
       {
-        "visibility": "simplified"
+        "visibility": "on"
       },
       {
         "color": "#b53838"
@@ -127,10 +127,10 @@
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#000000"
+        "visibility": "on"
       },
       {
-        "lightness": 21
+        "color": "#953030"
       }
     ]
   },
