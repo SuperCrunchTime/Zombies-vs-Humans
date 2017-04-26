@@ -9,5 +9,6 @@
     <string name="checkpath">getusers</string>
     <string name="updateuser">updateuser</string>
     <string name="login_username_hint">Enter Name</string>
+    <string name="blank" />
 
 </resources>
