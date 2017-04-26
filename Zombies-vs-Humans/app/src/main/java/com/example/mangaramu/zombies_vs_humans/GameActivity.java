@@ -79,7 +79,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
     MapRipple mapRipple;
     Boolean ripplePresent = false;
-
+    private String myUsername;
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
     public static final int REQUEST_CHECK_SETTINGS = 1;
@@ -206,6 +206,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
         LINK = getResources().getString(R.string.URL);
+        myUsername = getIntent().getStringExtra("Username");
         gameusers.put(getIntent().getStringExtra("Username"),
                 new PlayerItem(
                         getIntent().getStringExtra("Username"),
@@ -247,10 +248,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 AndroidNetworking.initialize(gamecontext);
 
                 ////////////////////////////////////////////////////////////////////////
-
+                Log.d("GameActivity", gameusers.get(gameusers.keyAt(0)).getPlayername());
                 AndroidNetworking.post(LINK + "/{path}")//send data of user location to server
                         .addPathParameter("path", "updateuser")
-                        .addUrlEncodeFormBodyParameter("username", gameusers.get(gameusers.keyAt(0)).getPlayername())
+                        .addUrlEncodeFormBodyParameter("username", myUsername)
+                        //.addUrlEncodeFormBodyParameter("username", gameusers.get(gameusers.keyAt(0)).getPlayername())
                         .addUrlEncodeFormBodyParameter("lat", Double.toString(currlocation.getLatitude()))
                         .addUrlEncodeFormBodyParameter("long", Double.toString(currlocation.getLongitude()))
                         .build()
