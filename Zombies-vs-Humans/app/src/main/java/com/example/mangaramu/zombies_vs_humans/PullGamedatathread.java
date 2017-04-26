@@ -13,9 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by mangaramu on 4/23/2017.
- */
 
 public class PullGamedatathread extends Thread {
 

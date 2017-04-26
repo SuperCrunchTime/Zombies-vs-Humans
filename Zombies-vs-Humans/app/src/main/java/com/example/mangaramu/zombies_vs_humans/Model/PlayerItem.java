@@ -2,10 +2,6 @@ package com.example.mangaramu.zombies_vs_humans.Model;
 
 import android.support.annotation.Nullable;
 
-/**
- * Created by mangaramu on 4/23/2017.
- */
-
 public class PlayerItem {
     String Playername;
     Double latt;

@@ -7,28 +7,24 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
-/**
- * Created by mangaramu on 4/26/2017.
- */
-
 public class ZombieConversionDialogFragment extends DialogFragment {
-    String username="";
+    String username = "";
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(getActivity().getResources().getString(R.string.tag)+ " "+ username)
+        builder.setMessage(getActivity().getResources().getString(R.string.tag) + " " + username)
                 .setPositiveButton(R.string.tag, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ((Converted)getActivity()).convert(username);
-                        username="";
+                        ((Converted) getActivity()).convert(username);
+                        username = "";
                     }
                 }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                username="";
+                username = "";
                 dismiss();
 
             }
@@ -45,8 +41,7 @@ public class ZombieConversionDialogFragment extends DialogFragment {
         this.username = username;
     }
 
-    public interface Converted
-    {
+    public interface Converted {
         public void convert(String user);
     }
 

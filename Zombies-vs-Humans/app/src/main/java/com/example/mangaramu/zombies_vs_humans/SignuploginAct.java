@@ -1,6 +1,5 @@
 package com.example.mangaramu.zombies_vs_humans;
 
-
 import android.app.Activity;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;

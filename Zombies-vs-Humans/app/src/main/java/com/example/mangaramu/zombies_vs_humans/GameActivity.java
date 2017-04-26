@@ -1,6 +1,5 @@
 package com.example.mangaramu.zombies_vs_humans;
 
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -46,11 +45,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 
-
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -74,11 +71,10 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayMap<String, PlayerItem> gameusers = new ArrayMap<>();
     Activity gamecontext = this;
     PullGamedatathread datagame;
-    int powerdistance = 20;
+    int powerDistance = 20;
     String LINK;
     ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
     MapRipple mapRipple;
-    Boolean ripplePresent = false;
     private String myUsername;
 
 
@@ -93,9 +89,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (mymap != null) {
                 for (Map.Entry<String, PlayerItem> entry : gameusers.entrySet()) {
-                    // If it's not the first entry (you, the local player)
-                    if (!entry.getKey().equals(gameusers.keyAt(0))) {
-                        bd = getColorBasedOnDistance(gameusers.valueAt(0), entry.getValue());
+                    // If it's not you
+                    if (!entry.getKey().equals(myUsername)) {
+                        bd = getColorBasedOnDistance(gameusers.get(myUsername), entry.getValue());
                         markerOptions = new MarkerOptions()
                                 .position(new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()))
                                 .title(entry.getKey())
@@ -107,38 +103,66 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
 
-                if (gameusers.get(gameusers.keyAt(0)).isZombie()) {
-                    if (gameusers.get(gameusers.keyAt(0)).getLatitude() != null) {
-                        if (dialog.isVisible())//checks to see if we already have a dialog up and  are still in range
+                if (gameusers.get(myUsername).isZombie()) {
+                    if (gameusers.get(myUsername).getLatitude() != null) {
+                        if (dialog.isVisible())//checks to see if we already have a dialog up and are still in range
                         {
                             float[] tmp2 = new float[1];
-                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLatitude(), gameusers.get(gameusers.keyAt(0)).getLongitude(), gameusers.get(dialog.getUsername()).getLatitude(), gameusers.get(dialog.getUsername()).getLongitude(), tmp2);
-                            if (tmp2[0] <= powerdistance) {
+                            Location.distanceBetween(
+                                    gameusers.get(myUsername).getLatitude(),
+                                    gameusers.get(myUsername).getLongitude(),
+                                    gameusers.get(dialog.getUsername()).getLatitude(),
+                                    gameusers.get(dialog.getUsername()).getLongitude(),
+                                    tmp2);
+                            if (tmp2[0] <= powerDistance) {
                                 return;
                             } else {
                                 dialog.dismiss();
                             }
                         }
 
-                        ArrayList<String> humanz = new ArrayList<>(); // if we didn't have a dialog up we create one for the first person who is within range to be able to tag
-                        for (int y = 1; y < gameusers.size(); y++) {
-                            if (!gameusers.get(gameusers.keyAt(y)).isZombie()) {
-                                humanz.add(gameusers.keyAt(y));
+                        ArrayList<String> humans = new ArrayList<>(); // if we didn't have a dialog up we create one for the first person who is within range to be able to tag
+                        for (Map.Entry<String, PlayerItem> entry : gameusers.entrySet()) {
+                            if (!entry.getValue().isZombie()) {
+                                humans.add(entry.getKey());
                             }
                         }
 
-                        for (int z = 0; z < humanz.size(); z++) {
+//                        for (int y = 0; y < gameusers.size(); y++) {
+//                            if (!gameusers.get(gameusers.keyAt(y)).isZombie()) {
+//                                humans.add(gameusers.keyAt(y));
+//                            }
+//                        }
+
+                        for (String playerName : humans) {
                             float[] tmp = new float[1];
-                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLatitude(), gameusers.get(gameusers.keyAt(0)).getLongitude(), gameusers.get(humanz.get(z)).getLatitude(), gameusers.get(humanz.get(z)).getLongitude(), tmp);
-                            if (tmp[0] <= powerdistance) {
-                                dialog.setUsername(humanz.get(z));
+                            Location.distanceBetween(
+                                    gameusers.get(myUsername).getLatitude(),
+                                    gameusers.get(myUsername).getLongitude(),
+                                    gameusers.get(playerName).getLatitude(),
+                                    gameusers.get(playerName).getLongitude(),
+                                    tmp);
+                            if (tmp[0] <= powerDistance) {
+                                dialog.setUsername(playerName);
                                 dialog.show(getSupportFragmentManager(), "dialog");
-
+                                break;
                             }
-                            break;
                         }
-                    } else {
 
+//                        for (int z = 0; z < humans.size(); z++) {
+//                            float[] tmp = new float[1];
+//                            Location.distanceBetween(
+//                                    gameusers.get(myUsername).getLatitude(),
+//                                    gameusers.get(myUsername).getLongitude(),
+//                                    gameusers.get(humans.get(z)).getLatitude(),
+//                                    gameusers.get(humans.get(z)).getLongitude(),
+//                                    tmp);
+//                            if (tmp[0] <= powerDistance) {
+//                                dialog.setUsername(humans.get(z));
+//                                dialog.show(getSupportFragmentManager(), "dialog");
+//                                break;
+//                            }
+//                        }
                     }
                 }
             }
@@ -255,7 +279,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 AndroidNetworking.initialize(gamecontext);
 
                 ////////////////////////////////////////////////////////////////////////
-                Log.d("GameActivity", gameusers.get(gameusers.keyAt(0)).getPlayername());
+                Log.d("GameActivity", gameusers.get(myUsername).getPlayername());
                 AndroidNetworking.post(LINK + "/{path}")//send data of user location to server
                         .addPathParameter("path", "updateuser")
                         .addUrlEncodeFormBodyParameter("username", myUsername)
