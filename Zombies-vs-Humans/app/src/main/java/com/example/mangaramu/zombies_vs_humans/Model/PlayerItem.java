@@ -3,13 +3,13 @@ package com.example.mangaramu.zombies_vs_humans.Model;
 import android.support.annotation.Nullable;
 
 public class PlayerItem {
-    String Playername;
+    String playerName;
     Double latt;
     Double longi;
     Boolean isZombie;
 
     public PlayerItem(@Nullable String playername, @Nullable Double latt, @Nullable Double longi, @Nullable Boolean isZombie) {
-        Playername = playername;
+        playerName = playername;
         this.latt = latt;
         this.longi = longi;
         this.isZombie = isZombie;
@@ -27,12 +27,12 @@ public class PlayerItem {
         isZombie = iszombie;
     }
 
-    public String getPlayername() {
-        return Playername;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setPlayername(String playername) {
-        Playername = playername;
+    public void setPlayerName(String playername) {
+        playerName = playername;
     }
 
     public Double getLatitude() {
@@ -43,7 +43,7 @@ public class PlayerItem {
         return this.longi;
     }
 
-    public void setLattitude(Double position) {
+    public void setLatitude(Double position) {
         this.latt = position;
     }
 

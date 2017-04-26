@@ -1,44 +1,35 @@
 package com.example.mangaramu.zombies_vs_humans;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Debug;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.androidnetworking.interfaces.StringRequestListener;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class SignuploginAct extends Activity {
 
-    EditText playernmae;
+    EditText playerName;
     TextView graveText;
     Button play;
-    SharedPreferences sharedpref;
+    SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     String LINK;
     MediaPlayer cackleSound;
@@ -50,15 +41,15 @@ public class SignuploginAct extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         setContentView(R.layout.signuplog);
 
-        sharedpref = getPreferences(Context.MODE_PRIVATE);
-        editor = sharedpref.edit();
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
         LINK = getResources().getString(R.string.URL);
         //sounds
         cackleSound = MediaPlayer.create(this,R.raw.cackle3);
 
-        if (sharedpref.getString("Name", "").equals("")) {
+        if (sharedPref.getString("Name", "").equals("")) {
 
-            playernmae = (EditText) findViewById(R.id.playername);
+            playerName = (EditText) findViewById(R.id.playername);
             play = (Button) findViewById(R.id.playbutt);//Tee hee, you said butt
             graveText = (TextView) findViewById(R.id.graveText);
 
@@ -70,7 +61,7 @@ public class SignuploginAct extends Activity {
             final int screenHeight = metrics.heightPixels;
 
             //For animating the grave writing
-            playernmae.addTextChangedListener(new TextWatcher() {
+            playerName.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 }
@@ -98,7 +89,7 @@ public class SignuploginAct extends Activity {
                 @Override
                 public void onClick(View view) {
                     final String name;
-                    name = playernmae.getText().toString();
+                    name = playerName.getText().toString();
                     cackleSound.start();
 
                     Log.d("Name", name);
@@ -156,7 +147,7 @@ public class SignuploginAct extends Activity {
             });
         } else {
             String shared;
-            shared = sharedpref.getString("Name", "");
+            shared = sharedPref.getString("Name", "");
             StartGame(shared, 0.0, 0.0, false); //starts the game activity
         }
     }
