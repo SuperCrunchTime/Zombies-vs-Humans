@@ -47,16 +47,16 @@ app.post('/updateuser', (req, res) =>{
         //db.collection('users').update({username: req.body.username}, {username:req.body.username, long:req.body.long, lat:req.body.lat, iszombie:req.body.iszombie, lastupdated:req.body.lastupdated});
         console.log(req.body.iszombie);
         if(req.body.long!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {iszombie:req.body.long } });
+          db.collection('users').update({username: req.body.username}, { $set: {long:req.body.long } });
         }
         if(req.body.lat!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {iszombie:req.body.lat } });
+          db.collection('users').update({username: req.body.username}, { $set: {lat:req.body.lat } });
         }
         if(req.body.iszombie!=null){
           db.collection('users').update({username: req.body.username}, { $set: {iszombie:req.body.iszombie } });
         }
         if(req.body.lastupdated!=null){
-          db.collection('users').update({username: req.body.username}, { $set: {iszombie:req.body.lastupdated } });
+          db.collection('users').update({username: req.body.username}, { $set: {lastupdated:req.body.lastupdated } });
         }
         var dbSize;
         db.collection('users').count((err, results)=>{
