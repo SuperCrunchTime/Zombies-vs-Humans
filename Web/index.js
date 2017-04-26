@@ -84,5 +84,6 @@ app.post('/taguser', (req, res) =>{
       if(req.body.iszombie!=null){
         db.collection('users').update({username: req.body.username}, { $set: {iszombie:"true" } });
       }
-  })
+  }
+})
 });
