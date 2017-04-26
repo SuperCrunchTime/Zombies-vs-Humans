@@ -31,4 +31,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.google.android.gms:play-services-maps:10.2.0'
     compile 'com.amitshekhar.android:android-networking:1.0.0'
+    compile 'com.github.aarsy.googlemapsanimations:googlemapsanimations:1.0.5'
 }
