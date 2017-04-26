@@ -18,6 +18,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
@@ -39,6 +40,7 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -51,8 +53,12 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
-public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class GameActivity extends Activity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
+    private final String TAG = "GameActivity";
+    private static final String KEY_CAMERA_POSITION = "camera_position";
+    private static final String KEY_LOCATION = "location";
+    private CameraPosition cameraPosition;
     ArrayMap<String, Marker> Markers = new ArrayMap<>();
     SupportMapFragment gogmymap;
     GoogleMap mymap = null;
@@ -139,6 +145,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.gameact);
+
         LINK = getResources().getString(R.string.URL);
         gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"), null, null, null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
         datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
@@ -154,15 +163,23 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         mGoogleApiClient.connect();
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.gameact);
+
+
+
+        if (savedInstanceState != null) {
+            currlocation = savedInstanceState.getParcelable(KEY_LOCATION);
+            cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
+        }
 
         locationmanage = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE); // allows you to do location related things if you have the correct permissions
         mylocation = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {//on location changed takes in a location variable. It will do various tasks related to a google map by variable which are set by buttons.
-                currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
+                try {
+                    currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                } catch(SecurityException e){
+                    Log.d(TAG, e.toString());
+                }
                 currlocation = location;
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
                 CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
@@ -218,7 +235,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
         //managelocation.requestLocationUpdates("GPS_PROVIDER", 500, .5f, mylocation);
 
-        gogmymap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.zombhummap);
+        gogmymap = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.zombhummap);
 
         GetLocationPermissions();
         gogmymap.getMapAsync(this);
@@ -268,6 +285,16 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mymap != null) {
+            outState.putParcelable(KEY_CAMERA_POSITION, mymap.getCameraPosition());
+            outState.putParcelable(KEY_LOCATION, currlocation);
+            //Log.d
+            super.onSaveInstanceState(outState);
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         mymap = googleMap;
 
@@ -281,6 +308,10 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        if(cameraPosition!=null){
+            mymap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            Log.d(TAG, "Camera moved via camerapos");
+        }
         mymap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
@@ -288,9 +319,10 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
                 //Uncommented to make location updates work - Jimmy
-                currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                //currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                 if (currlocation == null) {
                     Toast.makeText(myactivity, "Please wait a few minuetes for location to update", Toast.LENGTH_SHORT).show();
+                    currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                 } else {
 
                     LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());
