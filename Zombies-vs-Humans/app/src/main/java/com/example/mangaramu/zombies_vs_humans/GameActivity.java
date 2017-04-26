@@ -161,6 +161,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         mylocation = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {//on location changed takes in a location variable. It will do various tasks related to a google map by variable which are set by buttons.
+                currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
                 currlocation = location;
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
@@ -286,7 +287,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 if (ActivityCompat.checkSelfPermission(myactivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(myactivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 }
-                //currlocation = locationmanage.getLastKnownLocation(locationmanage.GPS_PROVIDER);
+                //Uncommented to make location updates work - Jimmy
+                currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                 if (currlocation == null) {
                     Toast.makeText(myactivity, "Please wait a few minuetes for location to update", Toast.LENGTH_SHORT).show();
                 } else {
@@ -372,6 +374,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             }
         } else {
             locationmanage.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, .3f, mylocation);////////////////////////
+            currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
         }
     }
 
