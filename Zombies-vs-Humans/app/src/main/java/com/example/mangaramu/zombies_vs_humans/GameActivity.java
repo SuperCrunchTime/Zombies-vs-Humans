@@ -49,9 +49,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,ZombieConversionDialogFragment.Converted {
 
     ArrayMap<String, Marker> Markers = new ArrayMap<>();
     SupportMapFragment gogmymap;
@@ -69,7 +70,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayMap<String, PlayerItem> gameusers = new ArrayMap<>();
     Activity gamecontext = this;
     PullGamedatathread datagame;
+    int powerdistance=20;
     String LINK;
+    ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
     public static final int REQUEST_CHECK_SETTINGS = 1;
@@ -92,8 +95,51 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
-            datagame.start();
+                if (gameusers.get(gameusers.keyAt(0)).isZombie()) {
+                    if(gameusers.get(gameusers.keyAt(0)).getLattitude()!=null) {
+                        if(dialog.isVisible())//checks to see if we already have a dialog up and  are still in range
+                        {
+                            float [] tmp2 = new float[1];
+                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLattitude(),gameusers.get(gameusers.keyAt(0)).getLongitude(),gameusers.get(dialog.getUsername()).getLattitude(),gameusers.get(dialog.getUsername()).getLongitude(),tmp2);
+                            if(tmp2[0]<=powerdistance)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                dialog.dismiss();
+                            }
+                        }
+
+                    ArrayList<String> humanz = new ArrayList<>(); // if we didn't have a dialog up we create one for the first person who is within range to be able to tag
+                    for (int y = 1; y < gameusers.size(); y++) {
+                        if (!gameusers.get(gameusers.keyAt(y)).isZombie()) {
+                            humanz.add(gameusers.keyAt(y));
+                        }
+                    }
+
+                        for(int z = 0 ; z<humanz.size();z++)
+                        {
+                            float [] tmp = new float[1];
+                            Location.distanceBetween(gameusers.get(gameusers.keyAt(0)).getLattitude(),gameusers.get(gameusers.keyAt(0)).getLongitude(),gameusers.get(humanz.get(z)).getLattitude(),gameusers.get(humanz.get(z)).getLongitude(),tmp);
+                            if(tmp[0]<=powerdistance)
+                            {
+                                    dialog.setUsername(humanz.get(z));
+                                    dialog.show(getSupportFragmentManager(),"dialog");
+
+                            }
+                            break;
+
+                        }
+
+
+                } else {
+
+                }
+            }
+                datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
+                datagame.start();
+
         }
     };
 
@@ -134,6 +180,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
         }
 
+
         return bd;
     }
 
@@ -142,7 +189,6 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         LINK = getResources().getString(R.string.URL);
         gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"), null, null, null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
         datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
-
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         myactivity = this;
         AndroidNetworking.initialize(getApplicationContext());// For android networking!
@@ -172,18 +218,12 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 AndroidNetworking.initialize(gamecontext);
 
                 ////////////////////////////////////////////////////////////////////////
-                JSONObject userupdate = new JSONObject();
-                try {
-                    if (gameusers.get(gameusers.keyAt(0)).getPlayername() != null) {
-                        userupdate.put("Username", gameusers.get(gameusers.keyAt(0)).getPlayername())
-                                .put("Latitude", currlocation.getLatitude())
-                                .put("Longitude", currlocation.getLongitude());
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                AndroidNetworking.post(LINK)//send data of user location to server
-                        .addJSONObjectBody(userupdate)
+
+                AndroidNetworking.post(LINK+"/{path}")//send data of user location to server
+                        .addPathParameter("path","updateuser")
+                        .addUrlEncodeFormBodyParameter("username",gameusers.get(gameusers.keyAt(0)).getPlayername())
+                        .addUrlEncodeFormBodyParameter("lat",Double.toString(currlocation.getLatitude()))
+                        .addUrlEncodeFormBodyParameter("long", Double.toString(currlocation.getLongitude()))
                         .build()
                         .getAsJSONObject(new JSONObjectRequestListener() {
                             @Override
@@ -438,5 +478,13 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+
+    @Override
+    public void convert(String user) {
+        AndroidNetworking.post(LINK+"/{path}")
+                .addPathParameter("path","taguser")
+                .addUrlEncodeFormBodyParameter("username",user)
+                .build();
     }
 }

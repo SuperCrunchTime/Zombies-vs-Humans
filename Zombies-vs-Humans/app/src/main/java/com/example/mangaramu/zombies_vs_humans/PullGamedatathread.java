@@ -57,6 +57,7 @@ public class PullGamedatathread extends Thread {
                                     }
                                 } else {// if we do not know of the player
                                     gameusers.put(tmpuse, new PlayerItem(tmpuse, tmplat, tmplong, tmpstatus));
+
                                 }
                             }
 
