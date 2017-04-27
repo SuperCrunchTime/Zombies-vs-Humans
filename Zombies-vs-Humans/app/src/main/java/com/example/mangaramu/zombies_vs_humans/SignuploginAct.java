@@ -1,13 +1,16 @@
 package com.example.mangaramu.zombies_vs_humans;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -16,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -31,7 +35,7 @@ public class SignUpLoginAct extends Activity {
     EditText playerName;
     TextView graveText;
     Button play;
-//    SharedPreferences sharedPref;
+    //    SharedPreferences sharedPref;
 //    SharedPreferences.Editor editor;
     String LINK;
     MediaPlayer cackleSound;
@@ -42,6 +46,31 @@ public class SignUpLoginAct extends Activity {
         AndroidNetworking.initialize(getApplicationContext());//for android networking!
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         setContentView(R.layout.signuplog);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,//checks to see if it is a good idea to show the rationalle behind the requested permission
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                Toast.makeText(this, "Need access to gps in order for application to work correctly!", Toast.LENGTH_LONG).show(); // tries to explain why we need the permission we are asking for
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        GameActivity.GPS_FINE_LOCATION_SERVICE);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        GameActivity.GPS_FINE_LOCATION_SERVICE);
+            }
+        }
 
 //        sharedPref = getPreferences(Context.MODE_PRIVATE);
 //        editor = sharedPref.edit();

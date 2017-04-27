@@ -227,11 +227,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {//on location changed takes in a location variable. It will do various tasks related to a google map by variable which are set by buttons.
-                try {
-                    currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                } catch (SecurityException e) {
-                    Log.e("Security Exception", e.toString());
-                }
+//                try {
+//                    currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+//                } catch (SecurityException e) {
+//                    Log.e("Security Exception", e.toString());
+//                }
 
                 currlocation = location;
                 gameUsers.get(myUsername).setLatitude(currlocation.getLatitude());
@@ -262,10 +262,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     mapRipple.withLatLng(tmp);
                 }
 
-
-                CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 18.0f);
-                myMap.animateCamera(camup);
-                //myMap.moveCamera(camup);
+                if (myMap != null) {
+                    CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 18.0f);
+                    myMap.animateCamera(camup);
+                    //myMap.moveCamera(camup);
+                }
 
                 AndroidNetworking.initialize(gameContext);
 
@@ -464,13 +465,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         GPS_FINE_LOCATION_SERVICE);
             } else {
-                // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         GPS_FINE_LOCATION_SERVICE);
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         } else {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, .3f, locationListener);////////////////////////
