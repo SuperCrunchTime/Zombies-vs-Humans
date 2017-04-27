@@ -23,16 +23,24 @@
         android:textAlignment="center"
         android:textColor="@android:color/black"
         android:textSize="25sp" />
+    <ToggleButton
+        android:id="@+id/freecamera"
+        android:layout_alignParentBottom="true"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/black" />
     <fragment
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:id="@+id/zombhummap"
         android:layout_below="@id/Status"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/freecamera"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         />
+
 
 </RelativeLayout>
 </FrameLayout>

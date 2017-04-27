@@ -21,7 +21,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -79,10 +84,13 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     FragmentTransaction fragtra;
     FragmentManager fragma;
     int powerDistance = 20;
+    TextView userstatus;
     String LINK;
     ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
     MapRipple mapRipple;
     private String myUsername;
+    Boolean followcamera=true;
+    ToggleButton freecam;
 
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
@@ -93,7 +101,16 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             super.handleMessage(msg);
             MarkerOptions markerOptions;
             BitmapDescriptor bd;
-
+                if(gameUsers.get(myUsername).isZombie())
+                {
+                    userstatus.setText(getString(R.string.Zombie));
+                } else if (!gameUsers.get(myUsername).isZombie()) {
+                    userstatus.setText(getString(R.string.Human));
+                }
+                else
+                {
+                    userstatus.setText("");
+                }
             if (myMap != null) {
                 for (Map.Entry<String, PlayerItem> entry : gameUsers.entrySet()) {
                     // If it's not you
@@ -270,7 +287,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     mapRipple.withLatLng(tmp);
                 }
 
-                if (myMap != null) {
+                if (myMap != null&&followcamera) {
                     CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 18.0f);
                     myMap.animateCamera(camup);
                     //myMap.moveCamera(camup);
@@ -320,6 +337,22 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         //managelocation.requestLocationUpdates("GPS_PROVIDER", 500, .5f, locationListener);
 
         gogmymap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.zombhummap);
+        userstatus = (TextView) findViewById(R.id.Status);
+        freecam = (ToggleButton) findViewById(R.id.freecamera);
+        freecam.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if(isChecked)
+                {
+                     followcamera=true;
+                }
+                else
+                {
+                    followcamera=false;
+                }
+            }
+        });
+        freecam.setChecked(true);
 
         GetLocationPermissions();
         gogmymap.getMapAsync(this);
