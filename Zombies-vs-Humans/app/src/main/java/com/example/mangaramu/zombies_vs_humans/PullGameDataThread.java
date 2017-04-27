@@ -73,7 +73,7 @@ public class PullGameDataThread extends Thread {
                     }
                 });
 
-        android.os.SystemClock.sleep(200);// sleep 100 milisecconds
+        android.os.SystemClock.sleep(500);// sleep 100 milisecconds
 
         Message m = Message.obtain();//send empty message prompting
         m.setTarget(handle);

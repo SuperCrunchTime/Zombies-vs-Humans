@@ -192,6 +192,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.gameact);
+
         LINK = getResources().getString(R.string.URL);
         myUsername = getIntent().getStringExtra("Username");
         gameUsers.put(getIntent().getStringExtra("Username"),
@@ -212,8 +215,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         mGoogleApiClient.connect();
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.gameact);
+
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE); // allows you to do location related things if you have the correct permissions
         locationListener = new LocationListener() {
@@ -361,7 +363,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         myMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
         myMap.getUiSettings().setMapToolbarEnabled(false);
         myMap.getUiSettings().setZoomControlsEnabled(true);
-        myMap.setMyLocationEnabled(true);
+
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -401,6 +403,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 return true;// setting true allows nondefault behavior
             }
         });
+        myMap.setMyLocationEnabled(true);
+
     }
 
     @Override
