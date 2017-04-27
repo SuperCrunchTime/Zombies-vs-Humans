@@ -263,7 +263,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 gameUsers.get(myUsername).setLongitude(currlocation.getLongitude());
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
 
-                if (mapRipple == null) {
+                if (mapRipple == null && myMap != null) {
                     mapRipple = new MapRipple(myMap, tmp, getApplicationContext());
                     mapRipple.withDistance(10);
                     mapRipple.withRippleDuration(5000);
