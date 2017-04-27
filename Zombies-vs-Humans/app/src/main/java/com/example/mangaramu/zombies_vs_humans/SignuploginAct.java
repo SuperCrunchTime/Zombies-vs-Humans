@@ -33,6 +33,7 @@ public class SignuploginAct extends Activity {
     SharedPreferences.Editor editor;
     String LINK;
     MediaPlayer cackleSound;
+    MediaPlayer hauntSound;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +47,8 @@ public class SignuploginAct extends Activity {
         LINK = getResources().getString(R.string.URL);
         //sounds
         cackleSound = MediaPlayer.create(this,R.raw.cackle3);
+        hauntSound = MediaPlayer.create(this,R.raw.graveyardsound);
+        hauntSound.start();
 
         /*if (sharedPref.getString("Name", "").equals("")) {*/
 
