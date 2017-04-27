@@ -169,18 +169,18 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         // Cool hues for Humans
         if (!other.isZombie()) {
             Log.d("Distance", ((Float) results[0]).toString());
-            if (results[0] <= 10) {
+            if (results[0] <= 15) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-            } else if ((results[0] > 10) && (results[0] <= 20)) {
+            } else if ((results[0] > 15) && (results[0] <= 30)) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
             } else {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
             }
             // Warm hues for Zombies
         } else if (other.isZombie()) {
-            if (results[0] <= 10) {
+            if (results[0] <= 15) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-            } else if ((results[0] > 10) && (results[0] <= 20)) {
+            } else if ((results[0] > 15) && (results[0] <= 30)) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
             } else {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
@@ -237,29 +237,31 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                /* if (mapRipple == null) {
                     mapRipple = new MapRipple(myMap, tmp, getApplicationContext());
-                    mapRipple.withNumberOfRipples(3);
-                    if (!gameUsers.valueAt(0).isZombie()) {
-                        mapRipple.withFillColor(Color.BLUE);
-                    } else {
-                        mapRipple.withFillColor(Color.RED);
-                    }
-                    mapRipple.withStrokeColor(Color.BLACK);
-                    mapRipple.withStrokewidth(10);      // 10dp
-                    mapRipple.withDistance(10);      // 10 metres radius
-                    mapRipple.withRippleDuration(10000);    // 10000ms
-                    mapRipple.withTransparency(0.8f);
-
-                    if (!mapRipple.isAnimationRunning()) {
-                        mapRipple.startRippleMapAnimation();
-                    }
+//                    mapRipple.withNumberOfRipples(3);
+//                    if (!gameUsers.valueAt(0).isZombie()) {
+//                        mapRipple.withFillColor(Color.BLUE);
+//                    } else {
+//                        mapRipple.withFillColor(Color.RED);
+//                    }
+//                    mapRipple.withStrokeColor(Color.BLACK);
+//                    mapRipple.withStrokewidth(10);      // 10dp
+//                    mapRipple.withDistance(10);      // 10 metres radius
+//                    mapRipple.withRippleDuration(10000);    // 10000ms
+//                    mapRipple.withTransparency(0.8f);
+//
+//                    if (!mapRipple.isAnimationRunning()) {
+//                        mapRipple.startRippleMapAnimation();
+//                    }
+                    mapRipple.startRippleMapAnimation();
                 } else {
                     mapRipple.withLatLng(tmp);
                 }*/
 
-                CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
-                myMap.moveCamera(camup2);
-                CameraUpdate camup = CameraUpdateFactory.zoomTo(20.0f);
+
+                CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 17.5f);
+
                 myMap.animateCamera(camup);
+                //myMap.moveCamera(camup);
 
                 AndroidNetworking.initialize(gameContext);
 
@@ -367,7 +369,6 @@ Log.d("HHElo","HELLLLP");
         myMap.getUiSettings().setMapToolbarEnabled(false);
         myMap.getUiSettings().setZoomControlsEnabled(true);
 
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -378,6 +379,7 @@ Log.d("HHElo","HELLLLP");
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         myMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
@@ -391,10 +393,9 @@ Log.d("HHElo","HELLLLP");
                 } else {
 
                     LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());
-                    CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
-                    myMap.moveCamera(camup2);
-                    CameraUpdate camup = CameraUpdateFactory.zoomTo(19.0f);
-                    myMap.moveCamera(camup);
+                    CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 17.5f);
+                    myMap.animateCamera(camup);
+//                    myMap.moveCamera(camup);
                 }
 
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && mLocationRequest != null) {
