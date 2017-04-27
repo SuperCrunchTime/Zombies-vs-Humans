@@ -183,9 +183,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             if (results[0] <= 15) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
             } else if ((results[0] > 15) && (results[0] <= 30)) {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+//                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+                bd = BitmapDescriptorFactory.defaultMarker(15);
             } else {
-                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+//                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+                bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
             }
             // Green for error anomalies (errors)
         } else {
@@ -238,8 +240,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (mapRipple == null) {
                     mapRipple = new MapRipple(myMap, tmp, getApplicationContext());
-                    mapRipple.withDistance(30);
-                    mapRipple.withRippleDuration(10000);
+                    mapRipple.withDistance(10);
+                    mapRipple.withRippleDuration(5000);
 //                    mapRipple.withNumberOfRipples(3);
 //                    if (!gameUsers.valueAt(0).isZombie()) {
 //                        mapRipple.withFillColor(Color.BLUE);
@@ -262,7 +264,6 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                 CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 18.0f);
-
                 myMap.animateCamera(camup);
                 //myMap.moveCamera(camup);
 
@@ -280,12 +281,12 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         .getAsString(new StringRequestListener() {
                             @Override
                             public void onResponse(String response) {
-                                Log.d("HHElo", "HELLLLP");
+                                Log.d("GameActivity updateUser", "onResponse");
                             }
 
                             @Override
                             public void onError(ANError anError) {
-                                Log.d("HHElo", "error");
+                                Log.d("GameActivity updateUser", "onError");
                             }
                         });
                 ///////////////////////////////////////////////////////////////////////////////////
@@ -371,6 +372,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         myMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
         myMap.getUiSettings().setMapToolbarEnabled(false);
         myMap.getUiSettings().setZoomControlsEnabled(true);
+        myMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
