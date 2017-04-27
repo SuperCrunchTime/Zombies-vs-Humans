@@ -1,4 +1,4 @@
-package com.example.mangaramu.zombies_vs_humans;
+package com.example.mangaramu.zombies_vs_humans.Model;
 
 import android.Manifest;
 import android.app.Activity;
@@ -25,6 +25,8 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.StringRequestListener;
+import com.example.mangaramu.zombies_vs_humans.GameActivity;
+import com.example.mangaramu.zombies_vs_humans.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +41,7 @@ public class SignUpLoginAct extends Activity {
 //    SharedPreferences.Editor editor;
     String LINK;
     MediaPlayer cackleSound;
+    MediaPlayer gravesound;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,6 +80,8 @@ public class SignUpLoginAct extends Activity {
         LINK = getResources().getString(R.string.URL);
         //sounds
         cackleSound = MediaPlayer.create(this, R.raw.cackle3);
+        gravesound = MediaPlayer.create(this,R.raw.graveyardsound);
+        gravesound.start();
 
         /*if (sharedPref.getString("Name", "").equals("")) {*/
 
@@ -203,6 +208,7 @@ public class SignUpLoginAct extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+        gravesound.start();
     }
 
     @Override
@@ -223,6 +229,7 @@ public class SignUpLoginAct extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+        gravesound.stop();
     }
 
     @Override

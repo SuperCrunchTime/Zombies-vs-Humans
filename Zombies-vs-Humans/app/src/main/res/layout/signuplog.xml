@@ -60,6 +60,7 @@
         android:layout_marginBottom="59dp"
         android:fontFamily="cursive"
         android:text="R.I.P"
+        android:maxWidth="55dp"
         android:textColor="@android:color/darker_gray"
         android:textSize="24sp"
         android:layout_above="@+id/playbutt"
