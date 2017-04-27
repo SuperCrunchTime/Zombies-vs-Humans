@@ -1,4 +1,4 @@
-package com.example.mangaramu.zombies_vs_humans.Model;
+package com.example.mangaramu.zombies_vs_humans;
 
 import android.Manifest;
 import android.app.Activity;
