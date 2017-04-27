@@ -11,7 +11,7 @@
     <string name="taguser">taguser</string>
     <string name="login_username_hint">Enter Name</string>
     <string name="blank" />
-    <string name="tag">Tag</string>
+    <string name="tag">Infect</string>
     <string name="cancel">Cancel</string>
 
 </resources>

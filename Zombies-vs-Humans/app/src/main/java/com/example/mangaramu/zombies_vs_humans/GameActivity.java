@@ -2,6 +2,7 @@ package com.example.mangaramu.zombies_vs_humans;
 
 import android.Manifest;
 import android.app.Activity;
+import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
@@ -17,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.widget.Toast;
@@ -74,6 +76,8 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayMap<String, PlayerItem> gameUsers = new ArrayMap<>();
     Activity gameContext = this;
     PullGameDataThread pullDataThread;
+    FragmentTransaction fragtra;
+    FragmentManager fragma;
     int powerDistance = 20;
     String LINK;
     ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
@@ -111,7 +115,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (gameUsers.get(myUsername).isZombie()) {
                     if (gameUsers.get(myUsername).getLatitude() != null) {
-                        if (dialog.isVisible())//checks to see if we already have a dialog up and are still in range
+                        if (getSupportFragmentManager().findFragmentById(android.R.id.content) instanceof ZombieConversionDialogFragment&&dialog.username!=null)//checks to see if we already have a dialog up and are still in range
                         {
                             float[] tmp2 = new float[1];
                             Location.distanceBetween(
@@ -121,9 +125,13 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                                     gameUsers.get(dialog.getUsername()).getLongitude(),
                                     tmp2);
                             if (tmp2[0] <= powerDistance) {
+                                pullDataThread = new PullGameDataThread(myUsername, gameUsers, peopleUpdate, LINK);
+                                pullDataThread.start();
                                 return;
-                            } else {
-                                dialog.dismiss();
+                            }
+                            else
+                            {
+                                removedialog();
                             }
                         }
 
@@ -144,7 +152,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                                     tmp);
                             if (tmp[0] <= powerDistance) {
                                 dialog.setUsername(playerName);
-                                dialog.show(getSupportFragmentManager(), "dialog");
+                                showdialog();
                                 break;
                             }
                         }
@@ -351,7 +359,14 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if(getSupportFragmentManager().findFragmentById(android.R.id.content) instanceof ZombieConversionDialogFragment)//removes the dialog fragment from view
+        {
+            removedialog();
+
+        }
+        else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -543,10 +558,50 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void convert(String user) {
-        AndroidNetworking.post(LINK + "/{path}")
-                .addPathParameter("path", "taguser")
-                .addUrlEncodeFormBodyParameter("username", user)
-                .build();
+    public void convert(String user,Boolean x) {
+        if(x) {
+            dialog.taggs.setClickable(false);
+            AndroidNetworking.post(LINK + "/{path}")//send data of user location to server
+                    .addPathParameter("path", "updateuser")
+                    .addUrlEncodeFormBodyParameter("username", user)
+                    .addUrlEncodeFormBodyParameter("iszombie", "true")
+                    .build()
+                    .getAsString(new StringRequestListener() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d("convertresponse", response);
+                    removedialog();
+                }
+
+                @Override
+                public void onError(ANError anError) {
+                    dialog.taggs.setClickable(true);
+                    Log.d("converterror", anError.toString());
+                }
+            });
+
+        }
+        else
+        {
+            removedialog();
+        }
+    }
+    public void showdialog()
+    {
+        fragma=getSupportFragmentManager();
+        fragtra=fragma.beginTransaction();
+        fragtra.replace(android.R.id.content,dialog);
+        fragtra.commit();
+        fragma.executePendingTransactions();
+    }
+    public void removedialog()
+    {
+        dialog.taggs.setClickable(true);
+        dialog.setUsername(null);
+        fragma=getSupportFragmentManager();
+        fragtra=fragma.beginTransaction();
+        fragtra.remove(dialog);
+        fragtra.commit();
+        fragma.executePendingTransactions();
     }
 }
