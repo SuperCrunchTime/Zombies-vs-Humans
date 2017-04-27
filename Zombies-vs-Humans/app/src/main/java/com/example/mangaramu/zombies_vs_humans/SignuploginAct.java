@@ -41,13 +41,13 @@ public class SignuploginAct extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
         setContentView(R.layout.signuplog);
 
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
+       /* sharedPref = getPreferences(Context.MODE_PRIVATE);
+           editor = sharedPref.edit();*/
         LINK = getResources().getString(R.string.URL);
         //sounds
         cackleSound = MediaPlayer.create(this,R.raw.cackle3);
 
-        if (sharedPref.getString("Name", "").equals("")) {
+        /*if (sharedPref.getString("Name", "").equals("")) {*/
 
             playerName = (EditText) findViewById(R.id.playername);
             play = (Button) findViewById(R.id.playbutt);//Tee hee, you said butt
@@ -106,8 +106,8 @@ public class SignuploginAct extends Activity {
                                     Log.d("On response", "JSONArray");
                                     if (response.length() > 0)// if the name already exists on the server.
                                     {
-                                        editor.putString("Name", name);
-                                        editor.commit();
+                                       /* editor.putString("Name", name);
+                                          editor.commit();*/
                                         Log.d("Server", "Name Already Exists");
                                         StartGame(name, 0.0, 0.0, false);
                                     } else // send a name up to the server to create an account! Also server needs to send back down an empty JSON so on response we can save the name to the application
@@ -124,8 +124,8 @@ public class SignuploginAct extends Activity {
                                                     @Override
                                                     public void onResponse(String response) {
                                                         Log.d("On response", "StringRequestListener");
-                                                        editor.putString("Name", name);// saves the name to our editor object on empty JSON response
-                                                        editor.commit();
+                                                       /* editor.putString("Name", name);// saves the name to our editor object on empty JSON response
+                                                          editor.commit();*/
                                                         StartGame(name, 0.0, 0.0, false);
                                                     }
 
@@ -145,11 +145,11 @@ public class SignuploginAct extends Activity {
                             });
                 }
             });
-        } else {
+        /*} else {
             String shared;
             shared = sharedPref.getString("Name", "");
             StartGame(shared, 0.0, 0.0, false); //starts the game activity
-        }
+        }*/
     }
 
     @Override

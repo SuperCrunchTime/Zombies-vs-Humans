@@ -171,7 +171,6 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Cool hues for Humans
         if (!other.isZombie()) {
-            Log.d("Distance", ((Float) results[0]).toString());
             if (results[0] <= 15) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
             } else if ((results[0] > 15) && (results[0] <= 30)) {
@@ -286,7 +285,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
                             @Override
                             public void onError(ANError anError) {
-                                Log.d("HHElo", "HELLLLP");
+                                Log.d("HHElo", "error");
                             }
                         });
                 ///////////////////////////////////////////////////////////////////////////////////
