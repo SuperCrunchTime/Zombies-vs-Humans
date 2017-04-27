@@ -23,7 +23,9 @@ import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.androidnetworking.interfaces.StringRequestListener;
 import com.arsy.maps_library.MapRipple;
 import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 import com.google.android.gms.common.ConnectionResult;
@@ -48,6 +50,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -232,7 +235,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 gameUsers.get(myUsername).setLongitude(currlocation.getLongitude());
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
 
-                if (mapRipple == null) {
+               /* if (mapRipple == null) {
                     mapRipple = new MapRipple(myMap, tmp, getApplicationContext());
                     mapRipple.withNumberOfRipples(3);
                     if (!gameUsers.valueAt(0).isZombie()) {
@@ -251,11 +254,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 } else {
                     mapRipple.withLatLng(tmp);
-                }
+                }*/
 
                 CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
                 myMap.moveCamera(camup2);
-                CameraUpdate camup = CameraUpdateFactory.zoomTo(50.0f);
+                CameraUpdate camup = CameraUpdateFactory.zoomTo(20.0f);
                 myMap.animateCamera(camup);
 
                 AndroidNetworking.initialize(gameContext);
@@ -269,15 +272,15 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         .addUrlEncodeFormBodyParameter("lat", Double.toString(currlocation.getLatitude()))
                         .addUrlEncodeFormBodyParameter("long", Double.toString(currlocation.getLongitude()))
                         .build()
-                        .getAsJSONObject(new JSONObjectRequestListener() {
+                        .getAsString(new StringRequestListener() {
                             @Override
-                            public void onResponse(JSONObject response) {
-
+                            public void onResponse(String response) {
+Log.d("HHElo","HELLLLP");
                             }
 
                             @Override
                             public void onError(ANError anError) {
-
+                                Log.d("HHElo","HELLLLP");
                             }
                         });
                 ///////////////////////////////////////////////////////////////////////////////////
