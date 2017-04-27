@@ -95,14 +95,17 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     // If it's not you
                     if (!entry.getKey().equals(myUsername)) {
                         bd = getColorBasedOnDistance(gameUsers.get(myUsername), entry.getValue());
-                        markerOptions = new MarkerOptions()
-                                .position(new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()))
-                                .title(entry.getKey())
-                                .icon(bd);
+
                         if (Markers.containsKey(entry.getKey())) {
-                            Markers.get(entry.getKey()).remove();
+                            Markers.get(entry.getKey()).setPosition(new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()));
+                            Markers.get(entry.getKey()).setIcon(bd);
+                        } else {
+                            markerOptions = new MarkerOptions()
+                                    .position(new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()))
+                                    .title(entry.getKey())
+                                    .icon(bd);
+                            Markers.put(entry.getKey(), myMap.addMarker(markerOptions));
                         }
-                        Markers.put(entry.getKey(), myMap.addMarker(markerOptions));
                     }
                 }
 
@@ -219,7 +222,6 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         mGoogleApiClient.connect();
 
 
-
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE); // allows you to do location related things if you have the correct permissions
         locationListener = new LocationListener() {
             @Override
@@ -235,8 +237,10 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 gameUsers.get(myUsername).setLongitude(currlocation.getLongitude());
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
 
-               /* if (mapRipple == null) {
+                if (mapRipple == null) {
                     mapRipple = new MapRipple(myMap, tmp, getApplicationContext());
+                    mapRipple.withDistance(30);
+                    mapRipple.withRippleDuration(10000);
 //                    mapRipple.withNumberOfRipples(3);
 //                    if (!gameUsers.valueAt(0).isZombie()) {
 //                        mapRipple.withFillColor(Color.BLUE);
@@ -255,10 +259,10 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     mapRipple.startRippleMapAnimation();
                 } else {
                     mapRipple.withLatLng(tmp);
-                }*/
+                }
 
 
-                CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 17.5f);
+                CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 18.0f);
 
                 myMap.animateCamera(camup);
                 //myMap.moveCamera(camup);
@@ -277,12 +281,12 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         .getAsString(new StringRequestListener() {
                             @Override
                             public void onResponse(String response) {
-Log.d("HHElo","HELLLLP");
+                                Log.d("HHElo", "HELLLLP");
                             }
 
                             @Override
                             public void onError(ANError anError) {
-                                Log.d("HHElo","HELLLLP");
+                                Log.d("HHElo", "HELLLLP");
                             }
                         });
                 ///////////////////////////////////////////////////////////////////////////////////
@@ -393,7 +397,7 @@ Log.d("HHElo","HELLLLP");
                 } else {
 
                     LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());
-                    CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 17.5f);
+                    CameraUpdate camup = CameraUpdateFactory.newLatLngZoom(tmp, 18.0f);
                     myMap.animateCamera(camup);
 //                    myMap.moveCamera(camup);
                 }
