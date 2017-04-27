@@ -8,7 +8,10 @@
     <string name = "URL">http://13.82.96.69</string>
     <string name="checkpath">getusers</string>
     <string name="updateuser">updateuser</string>
+    <string name="taguser">taguser</string>
     <string name="login_username_hint">Enter Name</string>
     <string name="blank" />
+    <string name="tag">Tag</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

@@ -1,12 +1,12 @@
 package com.example.mangaramu.zombies_vs_humans;
 
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,11 +18,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.arsy.maps_library.MapRipple;
 import com.example.mangaramu.zombies_vs_humans.Model.PlayerItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,60 +42,112 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
-
 
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class GameActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, ZombieConversionDialogFragment.Converted {
 
     ArrayMap<String, Marker> Markers = new ArrayMap<>();
     SupportMapFragment gogmymap;
-    GoogleMap mymap = null;
-    LocationListener mylocation;
-    LocationManager locationmanage;
+    GoogleMap myMap = null;
+    LocationListener locationListener;
+    LocationManager locationManager;
     Location currlocation;
     LocationRequest mLocationRequest;
     LocationSettingsRequest.Builder builder;
     GoogleApiClient mGoogleApiClient;
     PendingResult<LocationSettingsResult> result;
-    Activity myactivity;
+    Activity myActivity;
     Boolean TrackLocationWithCamera, PinDrop = false;
     Boolean Firstchange = false;
-    ArrayMap<String, PlayerItem> gameusers = new ArrayMap<>();
-    Activity gamecontext = this;
-    PullGamedatathread datagame;
+    ArrayMap<String, PlayerItem> gameUsers = new ArrayMap<>();
+    Activity gameContext = this;
+    PullGameDataThread pullDataThread;
+    int powerDistance = 20;
     String LINK;
+    ZombieConversionDialogFragment dialog = new ZombieConversionDialogFragment();
+    MapRipple mapRipple;
+    private String myUsername;
+
 
     public static final int GPS_FINE_LOCATION_SERVICE = 1;
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
-    Handler peopleupdate = new Handler() {//handle the players being updated here!
+    Handler peopleUpdate = new Handler() {//handle the players being updated here!
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             MarkerOptions markerOptions;
             BitmapDescriptor bd;
 
-            for (Map.Entry<String, PlayerItem> entry : gameusers.entrySet()) {
-                // If it's not the first entry (you, the local player)
-                if (!entry.getKey().equals(gameusers.keyAt(0))) {
-                    bd = getColorBasedOnDistance(gameusers.valueAt(0), entry.getValue());
-                    markerOptions = new MarkerOptions()
-                            .position(new LatLng(entry.getValue().getLattitude(), entry.getValue().getLongitude()))
-                            .title(entry.getKey())
-                            .icon(bd);
-                    Markers.put(entry.getKey(), mymap.addMarker(markerOptions));
+            if (myMap != null) {
+                for (Map.Entry<String, PlayerItem> entry : gameUsers.entrySet()) {
+                    // If it's not you
+                    if (!entry.getKey().equals(myUsername)) {
+                        bd = getColorBasedOnDistance(gameUsers.get(myUsername), entry.getValue());
+                        markerOptions = new MarkerOptions()
+                                .position(new LatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude()))
+                                .title(entry.getKey())
+                                .icon(bd);
+                        if (Markers.containsKey(entry.getKey())) {
+                            Markers.get(entry.getKey()).remove();
+                        }
+                        Markers.put(entry.getKey(), myMap.addMarker(markerOptions));
+                    }
+                }
+
+                if (gameUsers.get(myUsername).isZombie()) {
+                    if (gameUsers.get(myUsername).getLatitude() != null) {
+                        if (dialog.isVisible())//checks to see if we already have a dialog up and are still in range
+                        {
+                            float[] tmp2 = new float[1];
+                            Location.distanceBetween(
+                                    gameUsers.get(myUsername).getLatitude(),
+                                    gameUsers.get(myUsername).getLongitude(),
+                                    gameUsers.get(dialog.getUsername()).getLatitude(),
+                                    gameUsers.get(dialog.getUsername()).getLongitude(),
+                                    tmp2);
+                            if (tmp2[0] <= powerDistance) {
+                                return;
+                            } else {
+                                dialog.dismiss();
+                            }
+                        }
+
+                        ArrayList<String> humans = new ArrayList<>(); // if we didn't have a dialog up we create one for the first person who is within range to be able to tag
+                        for (Map.Entry<String, PlayerItem> entry : gameUsers.entrySet()) {
+                            if (!entry.getValue().isZombie()) {
+                                humans.add(entry.getKey());
+                            }
+                        }
+
+                        for (String playerName : humans) {
+                            float[] tmp = new float[1];
+                            Location.distanceBetween(
+                                    gameUsers.get(myUsername).getLatitude(),
+                                    gameUsers.get(myUsername).getLongitude(),
+                                    gameUsers.get(playerName).getLatitude(),
+                                    gameUsers.get(playerName).getLongitude(),
+                                    tmp);
+                            if (tmp[0] <= powerDistance) {
+                                dialog.setUsername(playerName);
+                                dialog.show(getSupportFragmentManager(), "dialog");
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
-            datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
-            datagame.start();
+            pullDataThread = new PullGameDataThread(myUsername, gameUsers, peopleUpdate, LINK);
+            pullDataThread.start();
         }
     };
 
@@ -102,17 +156,16 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
         float[] results = new float[1];
 
         // Calculate distance between local user and other player
-        if (local.getLattitude() != null) {
-            Location.distanceBetween(local.getLattitude(), local.getLongitude(),
-                    other.getLattitude(), other.getLongitude(), results);
+        if (local.getLatitude() != null) {
+            Location.distanceBetween(local.getLatitude(), local.getLongitude(),
+                    other.getLatitude(), other.getLongitude(), results);
         } else {
             results[0] = 30;
         }
 
-        // TODO Check distance and prompt alert dialog if the other player is close enough
-
         // Cool hues for Humans
         if (!other.isZombie()) {
+            Log.d("Distance", ((Float) results[0]).toString());
             if (results[0] <= 10) {
                 bd = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
             } else if ((results[0] > 10) && (results[0] <= 20)) {
@@ -139,12 +192,20 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {// should only get called once because the requested orientation is portrait
-        LINK = getResources().getString(R.string.URL);
-        gameusers.put(getIntent().getStringExtra("Username"), new PlayerItem(getIntent().getStringExtra("Username"), null, null, null)); //sets the username to their playeritem, the first item in gameusers should be the player themselves
-        datagame = new PullGamedatathread(gameusers, peopleupdate, LINK);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.gameact);
 
+        LINK = getResources().getString(R.string.URL);
+        myUsername = getIntent().getStringExtra("Username");
+        gameUsers.put(getIntent().getStringExtra("Username"),
+                new PlayerItem(
+                        getIntent().getStringExtra("Username"),
+                        getIntent().getDoubleExtra("Latitude", 0),
+                        getIntent().getDoubleExtra("Longitude", 0),
+                        getIntent().getBooleanExtra("isZombie", false))); //sets the username to their playeritem, the first item in gameUsers should be the player themselves
+        pullDataThread = new PullGameDataThread(myUsername, gameUsers, peopleUpdate, LINK);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// set the app to always be in portrait mode .
-        myactivity = this;
+        myActivity = this;
         AndroidNetworking.initialize(getApplicationContext());// For android networking!
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)//setting up a google api client to change the gps settings
@@ -154,36 +215,59 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         mGoogleApiClient.connect();
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.gameact);
 
-        locationmanage = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE); // allows you to do location related things if you have the correct permissions
-        mylocation = new LocationListener() {
+
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE); // allows you to do location related things if you have the correct permissions
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {//on location changed takes in a location variable. It will do various tasks related to a google map by variable which are set by buttons.
+                try {
+                    currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                } catch (SecurityException e) {
+                    Log.e("Security Exception", e.toString());
+                }
 
                 currlocation = location;
+                gameUsers.get(myUsername).setLatitude(currlocation.getLatitude());
+                gameUsers.get(myUsername).setLongitude(currlocation.getLongitude());
                 LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());//updates where the camera on the map is relative to where you are.
-                CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
-                mymap.moveCamera(camup2);
-                CameraUpdate camup = CameraUpdateFactory.zoomTo(19.0f);
-                mymap.animateCamera(camup);
 
-                AndroidNetworking.initialize(gamecontext);
+                if (mapRipple == null) {
+                    mapRipple = new MapRipple(myMap, tmp, getApplicationContext());
+                    mapRipple.withNumberOfRipples(3);
+                    if (!gameUsers.valueAt(0).isZombie()) {
+                        mapRipple.withFillColor(Color.BLUE);
+                    } else {
+                        mapRipple.withFillColor(Color.RED);
+                    }
+                    mapRipple.withStrokeColor(Color.BLACK);
+                    mapRipple.withStrokewidth(10);      // 10dp
+                    mapRipple.withDistance(10);      // 10 metres radius
+                    mapRipple.withRippleDuration(10000);    // 10000ms
+                    mapRipple.withTransparency(0.8f);
+
+                    if (!mapRipple.isAnimationRunning()) {
+                        mapRipple.startRippleMapAnimation();
+                    }
+                } else {
+                    mapRipple.withLatLng(tmp);
+                }
+
+                CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
+                myMap.moveCamera(camup2);
+                CameraUpdate camup = CameraUpdateFactory.zoomTo(50.0f);
+                myMap.animateCamera(camup);
+
+                AndroidNetworking.initialize(gameContext);
 
                 ////////////////////////////////////////////////////////////////////////
-                JSONObject userupdate = new JSONObject();
-                try {
-                    if (gameusers.get(gameusers.keyAt(0)).getPlayername() != null) {
-                        userupdate.put("Username", gameusers.get(gameusers.keyAt(0)).getPlayername())
-                                .put("Latitude", currlocation.getLatitude())
-                                .put("Longitude", currlocation.getLongitude());
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                AndroidNetworking.post(LINK)//send data of user location to server
-                        .addJSONObjectBody(userupdate)
+                Log.d("GameActivity", gameUsers.get(myUsername).getPlayerName());
+                AndroidNetworking.post(LINK + "/{path}")//send data of user location to server
+                        .addPathParameter("path", "updateuser")
+                        .addUrlEncodeFormBodyParameter("username", myUsername)
+                        //.addUrlEncodeFormBodyParameter("username", gameUsers.get(gameUsers.keyAt(0)).getPlayerName())
+                        .addUrlEncodeFormBodyParameter("lat", Double.toString(currlocation.getLatitude()))
+                        .addUrlEncodeFormBodyParameter("long", Double.toString(currlocation.getLongitude()))
                         .build()
                         .getAsJSONObject(new JSONObjectRequestListener() {
                             @Override
@@ -215,37 +299,45 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
 
-        //managelocation.requestLocationUpdates("GPS_PROVIDER", 500, .5f, mylocation);
+        //managelocation.requestLocationUpdates("GPS_PROVIDER", 500, .5f, locationListener);
 
         gogmymap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.zombhummap);
 
         GetLocationPermissions();
         gogmymap.getMapAsync(this);
 
-        if (ActivityCompat.checkSelfPermission(myactivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(myactivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(myActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(myActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //checks if we have th required permisions to use the location manager to get the lastknownposition.
 
         }
-        // currlocation = locationmanage.getLastKnownLocation(locationmanage.GPS_PROVIDER);
+        // currlocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
 
-        datagame.start();//initial start of the datagame thread
+        pullDataThread.start();//initial start of the pullDataThread thread
     }
 
     @Override
     protected void onStart() {
-
         super.onStart();
+        if (mapRipple != null) {
+            if (!mapRipple.isAnimationRunning()) {
+                mapRipple.startRippleMapAnimation();
+            }
+        }
     }
 
     @Override
     protected void onStop() {
-
         super.onStop();
+        if (mapRipple != null) {
+            if (mapRipple.isAnimationRunning()) {
+                mapRipple.stopRippleMapAnimation();
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
-        datagame.norun();// stop the pulling data thread form running
+        pullDataThread.norun();// stop the pulling data thread form running
         super.onDestroy();
     }
 
@@ -256,19 +348,22 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onPause() {
-
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-
         super.onResume();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mymap = googleMap;
+        myMap = googleMap;
+
+        myMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+        myMap.getUiSettings().setMapToolbarEnabled(false);
+        myMap.getUiSettings().setZoomControlsEnabled(true);
+
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -280,42 +375,42 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mymap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+        myMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                if (ActivityCompat.checkSelfPermission(myactivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(myactivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(myActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(myActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 }
-                //currlocation = locationmanage.getLastKnownLocation(locationmanage.GPS_PROVIDER);
+                //Uncommented to make location updates work - Jimmy
+                currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                 if (currlocation == null) {
-                    Toast.makeText(myactivity, "Please wait a few minuetes for location to update", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(myActivity, "Please wait a few minuetes for location to update", Toast.LENGTH_SHORT).show();
                 } else {
 
                     LatLng tmp = new LatLng(currlocation.getLatitude(), currlocation.getLongitude());
                     CameraUpdate camup2 = CameraUpdateFactory.newLatLng(tmp);
-                    mymap.moveCamera(camup2);
+                    myMap.moveCamera(camup2);
                     CameraUpdate camup = CameraUpdateFactory.zoomTo(19.0f);
-                    mymap.moveCamera(camup);
+                    myMap.moveCamera(camup);
                 }
 
-                if (locationmanage.isProviderEnabled(LocationManager.GPS_PROVIDER) && mLocationRequest != null) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && mLocationRequest != null) {
                     // turnGPSOff();
-                } else if (!locationmanage.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                } else if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     turnGPSOn();
                 }
 
                 return true;// setting true allows nondefault behavior
             }
         });
+        myMap.setMyLocationEnabled(true);
 
-        mymap.setMyLocationEnabled(true);
-
-        // mymap.addMarker()
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) { //check if the permision was confirmed. If it is confirmed it will try to get the permissions again, else it will stop trying.
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) { //check if the permision was confirmed. If it is confirmed it will try to get the permissions again, else it will stop trying.
         switch (requestCode) {
             case GPS_FINE_LOCATION_SERVICE: {
                 // If request is cancelled, the result arrays are empty.
@@ -329,13 +424,11 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                     // permission was granted, yay! Do the
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
                 return;
             }
-
             // other 'case' lines to check for other
             // permissions this app might request
         }
@@ -371,7 +464,9 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                 // result of the request.
             }
         } else {
-            locationmanage.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, .3f, mylocation);////////////////////////
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, .3f, locationListener);////////////////////////
+            currlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
         }
     }
 
@@ -398,7 +493,7 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
                         try {
                             // Show the dialog by calling startResolutionForResult(),
                             // and check the result in onActivityResult().
-                            status.startResolutionForResult(myactivity
+                            status.startResolutionForResult(myActivity
                                     , REQUEST_CHECK_SETTINGS);
                         } catch (IntentSender.SendIntentException e) {
                             // Ignore the error.
@@ -438,5 +533,13 @@ public class GameActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+
+    @Override
+    public void convert(String user) {
+        AndroidNetworking.post(LINK + "/{path}")
+                .addPathParameter("path", "taguser")
+                .addUrlEncodeFormBodyParameter("username", user)
+                .build();
     }
 }
